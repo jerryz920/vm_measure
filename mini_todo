@@ -1,0 +1,22 @@
+1. purpose
+	1.) find out the degree of associative of cache
+	2.) construct a walk sequence that remain in cache, but will consume all TLB. Measure the total cost of the walk
+	3.) if the avg cost is a lot different, then stop probing
+	4.) use perf/cpuid to confirm this
+
+2. purpose
+	1.) measure the cost to TLB miss, and zero out a page, turn off swap
+	2.) mmap a anonymous file of size N * L-2 TLB size
+		walk through once and invalid everything
+		then measure the cost to walk the second time
+		repeat with step 2.) and compare the time
+	3.) check if madvice can improve the time
+	4.) optional (make system with few free pages, and try to see if the time is still the same)
+
+3. purpose
+	1.) compare the cost to walk through a big page/small page
+
+4. purpose
+	1.) compile apache and measure the code size
+	2.) construct a simulating walk sequence on different copy of the code to see the overhead
+	3.) compare the cost of simulating shared object vs statis object
