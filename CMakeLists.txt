@@ -16,6 +16,6 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 add_subdirectory("${PROJECT_SOURCE_DIR}/misc")
 link_directories("${PROJECT_SOURCE_DIR}/misc")
 
-add_executable(test test.c)
-target_link_libraries(test vmaux)
+add_executable(tlbsz tlbsz.c)
+target_link_libraries(tlbsz vmaux)
 
