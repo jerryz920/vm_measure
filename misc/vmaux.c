@@ -7,13 +7,17 @@
  @Created By: Zhai Yan
 
  @Purpose :
+   Helper routines that helps measure the virtual memory
 
 *******************************************************************************/
 
-#include "test.h"
-#include <stdio.h>
+#include "misc.h"
 
-void test()
+#include <sched.h>
+
+void set_affinity(int cpu)
 {
-  printf("hello test\n");
 }
+
+
+

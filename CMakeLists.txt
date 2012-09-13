@@ -7,6 +7,12 @@ if (SET_CACHE_LINE)
   set (CACHE_LINE 64)
 endif (SET_CACHE_LINE)
 
+include (CheckIncludeFiles)
+CHECK_INCLUDE_FILES(stdio.h HAVE_MALLOC)
+
+include (CheckFunctionExists) 
+check_function_exists(system HAVE_SCHED)
+
 configure_file (
 	"${PROJECT_SOURCE_DIR}/config.h.in"
 	"${PROJECT_SOURCE_DIR}/config.h"

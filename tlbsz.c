@@ -11,9 +11,11 @@
 *******************************************************************************/
 
 #include "config.h"
-#include "test.h"
+#include "misc.h"
+
+
 
 int main()
 {
-  test();
+  printf("%d\n", HAVE_SCHED);
 }

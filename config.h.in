@@ -4,3 +4,6 @@
  */
 #define CACHE_LINE @CACHE_LINE@
 
+#cmakedefine HAVE_SCHED
+
+#cmakedefine HAVE_MALLOC
