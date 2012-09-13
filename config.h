@@ -2,8 +2,21 @@
 /*
  *  Size of the cache line
  */
-#define CACHE_LINE 64
+#define BYTE_SIZE (1 << 8)
 
-#define HAVE_SCHED
+/*
+ *  Parameters for cache/TLB
+ */
+#define CACHE_LINE      64
+#define CACHE_MAX_DESC (BYTE_SIZE)
+#define TLB_MAX_DESC   (BYTE_SIZE)
 
-#define HAVE_MALLOC
+/*
+ *  Check whether it has sched functions
+ */
+/* #undef HAVE_SCHED */
+
+/*
+ *  Check whether it supports CPUID
+ */
+#define HAVE_CPUID

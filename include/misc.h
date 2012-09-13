@@ -14,7 +14,10 @@
 #ifndef ZY_TEST_H
 #define ZY_TEST_H
 
-
-extern void test();
+#ifdef HAVE_SCHED
+extern void set_cpu(int index);
+#else
+#define set_cpu(x) ((void*)0)
+#endif
 
 #endif

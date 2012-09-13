@@ -1,17 +1,26 @@
 
 cmake_minimum_required(VERSION 2.6)
 project (VM_Measure)
-option (SET_CACHE_LINE "Set the cache line size" ON)
 
-if (SET_CACHE_LINE) 
-  set (CACHE_LINE 64)
-endif (SET_CACHE_LINE)
-
-include (CheckIncludeFiles)
-CHECK_INCLUDE_FILES(stdio.h HAVE_MALLOC)
+option (X86 "whether this is a X86 compitable machine" ON)
 
 include (CheckFunctionExists) 
-check_function_exists(system HAVE_SCHED)
+#
+#	Check sched exists
+#
+set (CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+set (CMAKE_REQUIRED_INCLUDES sched.h)
+check_function_exists(sched_setaffinity HAVE_SCHED)
+set (CMAKE_REQUIRED_DEFINITIONS)
+set (CMAKE_REQUIRED_INCLUDES)
+
+#
+#	Check cpuid exists
+#
+if(X86)
+  set (HAVE_CPUID ON)
+endif(X86)
+
 
 configure_file (
 	"${PROJECT_SOURCE_DIR}/config.h.in"
