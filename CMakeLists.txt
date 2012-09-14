@@ -1,6 +1,8 @@
-
 cmake_minimum_required(VERSION 2.6)
 project (VM_Measure)
+
+set (CMAKE_C_FLAGS "-g -O0")
+set (CMAKE_EXE_LINKER_FLAGS "-g -O0")
 
 option (X86 "whether this is a X86 compitable machine" ON)
 
@@ -15,7 +17,6 @@ check_include_files("unistd.h;time.h;sys/time.h" HAVE_POSIX_HEADER)
 if (NOT HAVE_POSIX_HEADER)
   message(FATAL_ERROR "missing posix headers.")
 endif (NOT HAVE_POSIX_HEADER)
-
 
 include (CheckFunctionExists)
 #
@@ -46,9 +47,12 @@ configure_file (
 )
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/")
 add_subdirectory("${PROJECT_SOURCE_DIR}/misc")
 link_directories("${PROJECT_SOURCE_DIR}/misc")
 
-add_executable(tlbsz tlbsz.c)
-target_link_libraries(tlbsz vmaux)
+#add_executable(tlbsz tlbsz.c)
+#target_link_libraries(tlbsz vmaux)
 
+add_executable(test_mykey test_mykey.c)
+target_link_libraries(test_mykey vmaux m)

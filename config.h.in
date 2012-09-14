@@ -36,3 +36,8 @@
  *  Check whether it supports RDTSC
  */
 #cmakedefine HAVE_RDTSC
+
+/*
+ *  Debug flag
+ */
+#cmakedefine USE_DEBUG

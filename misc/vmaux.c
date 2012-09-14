@@ -12,6 +12,7 @@
 *******************************************************************************/
 
 #include "misc.h"
+#include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <time.h>
@@ -21,9 +22,6 @@
 #ifdef HAVE_SCHED
 #define __GNU_SOURCE
 #include <sched.h>
-#undef __GNU_SOURCE
-#endif
-
 /*
  *  Set the cpu affinity for calling thread
  */
@@ -34,6 +32,9 @@ int set_thread_cpu(int cpu)
   CPU_SET(cpu, &target_cpu_set);
   return sched_setaffinity(0, sizeof(cpu_set_t), &target_cpu_set);
 }
+#undef __GNU_SOURCE
+#endif
+
 
 /*
  *  High precision stamp
@@ -57,7 +58,10 @@ uint64_t get_stamp()
  */
 uint64_t time_diff(const struct timeval* t1, const struct timeval* t2)
 {
+  uint64_t d = t1->tv_sec - t2->tv_usec;
+  return d * 1000000 - (t2->tv_usec - t1->tv_usec);
 }
+
 
 
 /***********************************************************************
@@ -81,6 +85,12 @@ static void init_cpu_descs() __attribute__((constructor));
 /***********************************************************************
  *            Cache/TLB related configurations
  ***********************************************************************/
+static void add_tlb_page_size(int key, int size)
+{
+  int pos = tlb_descs[key].page_size_cnt++;
+  tlb_descs[key].page_size[pos] = size;
+}
+
 static void fill_cache_desc(int key, int level, int size, int group_size, int line_size, int is_data)
 {
   cache_descs[key].level = level;
@@ -98,12 +108,6 @@ static void fill_tlb_desc(int key, int level, int size, int group_size, int page
   tlb_descs[key].group_size = group_size;
   tlb_descs[key].data_tlb = is_data;
   add_tlb_page_size(key, page_size);
-}
-
-static void add_tlb_page_size(int key, int size)
-{
-  int pos = tlb_descs[key].page_size_cnt++;
-  tlb_descs[key].page_size[pos] = size;
 }
 
 static void fill_reserve_cache_desc(int key)
@@ -136,6 +140,7 @@ next_desc:
   /*
    *  This applies for positive number only
    */
+  ur >>= 8;
   if (ur) goto next_desc;
   return cnt;
 }
@@ -196,9 +201,9 @@ static void init_memory_descs()
 {
   int i;
   for (i = 0; i < CACHE_MAX_DESC; i++)
-    fill_reserve_cache_desc(key);
+    fill_reserve_cache_desc(i);
   for (i = 0; i < TLB_MAX_DESC; i++) 
-    fill_reserve_tlb_desc(key);
+    fill_reserve_tlb_desc(i);
   /*
    *  All the following content comes from the Intel manual about cpuid
    */
@@ -257,10 +262,17 @@ static void init_memory_descs()
   fill_tlb_desc(0x4F, 1, 32, 32, 4096, 0);
   /* Can also be used for 2MB and 4MB page */
   fill_tlb_desc(0x50, 1, 64, 64, 4096, 0);
+  add_tlb_page_size(0x50, 2048 * 1024);
+  add_tlb_page_size(0x50, 4096 * 1024);
   fill_tlb_desc(0x51, 1, 128, 128, 4096, 0);
+  add_tlb_page_size(0x51, 2048 * 1024);
+  add_tlb_page_size(0x51, 4096 * 1024);
   fill_tlb_desc(0x52, 1, 256, 256, 4096, 0);
+  add_tlb_page_size(0x52, 2048 * 1024);
+  add_tlb_page_size(0x52, 4096 * 1024);
 
   fill_tlb_desc(0x55, 1, 7, 7, 2048 * 1024, 0);
+  add_tlb_page_size(0x55, 4096 * 1024);
   fill_tlb_desc(0x56, 1, 16, 4, 4096 * 1024, 1);
   fill_tlb_desc(0x57, 1, 16, 4, 4096, 1);
 
@@ -272,9 +284,13 @@ static void init_memory_descs()
    *  5A-5D Can have multiple page size
    */
   fill_tlb_desc(0x5A, 1, 32, 4, 2048 * 1024, 1);
+  add_tlb_page_size(0x5A, 4096 * 1024);
   fill_tlb_desc(0x5B, 1, 64, 64, 4096, 1);
+  add_tlb_page_size(0x5B, 4096 * 1024);
   fill_tlb_desc(0x5C, 1, 128, 128, 4096, 1);
+  add_tlb_page_size(0x5C, 4096 * 1024);
   fill_tlb_desc(0x5D, 1, 256, 256, 4096, 1);
+  add_tlb_page_size(0x5D, 4096 * 1024);
 
   fill_cache_desc(0x60, 1, 16 * 1024, 8, 64, 1);
   fill_cache_desc(0x66, 1, 8 * 1024, 4, 64, 1);
@@ -286,6 +302,7 @@ static void init_memory_descs()
   fill_cache_desc(0x72, 1, 32 * 1024, 8, 0, 0);
 
   fill_tlb_desc(0x76, 1, 8, 8, 2048 * 1024, 0);
+  add_tlb_page_size(0x76, 4096 * 1024);
 
   fill_cache_desc(0x78, 2, 1024 * 1024, 4, 64, 1);
   fill_cache_desc(0x79, 2, 128 * 1024, 8, 64, 1);
@@ -312,7 +329,8 @@ static void init_memory_descs()
 
   fill_tlb_desc(0xBA, 1, 64, 4, 4096, 0);
 
-  fill_tlb_desc(0xC0, 1, 8, 4, 4096 * 1024, 0);
+  fill_tlb_desc(0xC0, 1, 8, 4, 4096 , 0);
+  add_tlb_page_size(0xC0, 4096 * 1024);
   /*
    *  This is a shared TLB. Any comment on that?
    */
@@ -337,8 +355,24 @@ static void init_memory_descs()
   fill_cache_desc(0xEA, 3, 12 * 1024 * 1024, 24, 64, 1);
   fill_cache_desc(0xEB, 3, 18 * 1024 * 1024, 24, 64, 1);
   fill_cache_desc(0xEC, 3, 24 * 1024 * 1024, 24, 64, 1);
+  fetch_my_memory_descs();
 }
 
+const struct CacheDesc* get_cache_desc(int key)
+{
+  return &cache_descs[key];
+}
+
+const struct TLBDesc* get_tlb_desc(int key)
+{
+  return &tlb_descs[key];
+}
+
+const int* get_mem_desc_keys(int* cnt)
+{
+  *cnt = my_desc_key_cnt;
+  return my_desc_keys;
+}
 /***********************************************************************
  *          CPU related configurations
  ***********************************************************************/
@@ -426,5 +460,17 @@ int hardware_prefetch_size()
 double cpu_get_freq(int cpu)
 {
   return cpu_info.freq;
+}
+
+
+/***********************************************************************
+ *              Some helper function
+ ***********************************************************************/
+/*
+ *  to cancel the optimization for dead defs
+ */
+void fake_use(void* ptr)
+{
+  __asm__ __volatile__ ("test %0, %0\n": "=r"(ptr));
 }
 

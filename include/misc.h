@@ -16,17 +16,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_SCHED
-extern int set_thread_cpu(int index);
-#else
-#define set_cpu(x) ((void*)0)
-#endif
-
-#ifdef HAVE_CPUID
-
-#else
-#error "only support x86/64 platform now"
-#endif
+#include <stdint.h>
 
 struct CacheDesc {
   int level;
@@ -52,4 +42,28 @@ struct CPUDesc {
   /* adding other parameters */
 };
 
+#ifdef HAVE_SCHED
+extern int set_thread_cpu(int index);
+#else
+#define set_cpu(x) ((void*)0)
+#endif
+
+#ifdef HAVE_CPUID
+const int* get_mem_desc_keys(int* cnt);
+const struct TLBDesc* get_tlb_desc(int key);
+const struct CacheDesc* get_cache_desc(int key);
+struct CPUDesc* get_cpu_desc(int cpu);
+int hardware_prefetch_size();
+double cpu_get_freq(int cpu);
+void fake_use(void* ptr);
+#else
+#error "only support x86/64 platform now"
+#endif
+
+#ifdef HAVE_RDTSC
+uint64_t get_stamp();
+#endif
+
+struct timeval;
+uint64_t timeval_diff(const struct timeval* t1, const struct timeval* t2);
 #endif
