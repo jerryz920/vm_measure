@@ -4,7 +4,20 @@ project (VM_Measure)
 
 option (X86 "whether this is a X86 compitable machine" ON)
 
-include (CheckFunctionExists) 
+include(CheckIncludeFiles)
+check_include_files("stdint.h;inttypes.h" HAVE_C99_HEADERS)
+
+if (NOT HAVE_C99_HEADERS)
+  message(FATAL_ERROR "missing C99 headers. We need its feature.")
+endif(NOT HAVE_C99_HEADERS)
+
+check_include_files("unistd.h;time.h;sys/time.h" HAVE_POSIX_HEADER)
+if (NOT HAVE_POSIX_HEADER)
+  message(FATAL_ERROR "missing posix headers.")
+endif (NOT HAVE_POSIX_HEADER)
+
+
+include (CheckFunctionExists)
 #
 #	Check sched exists
 #
@@ -14,11 +27,16 @@ check_function_exists(sched_setaffinity HAVE_SCHED)
 set (CMAKE_REQUIRED_DEFINITIONS)
 set (CMAKE_REQUIRED_INCLUDES)
 
+
 #
-#	Check cpuid exists
+#	Check cpuid exists. Actually we should write some
+#	manually constructed program to test the CPUID
+#	feature, and say if RDTSC is available. It should
+#	on recent architectures, but just in case.
 #
 if(X86)
   set (HAVE_CPUID ON)
+  set (HAVE_RDTSC ON)
 endif(X86)
 
 

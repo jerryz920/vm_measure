@@ -10,6 +10,17 @@
 #define CACHE_LINE      64
 #define CACHE_MAX_DESC (BYTE_SIZE)
 #define TLB_MAX_DESC   (BYTE_SIZE)
+/*
+ *  Just a guess for the number. We can make it larger since there
+ *  are not much copy of this information
+ */
+#define TLB_SUPPORT_PAGE_SIZE_CNT  8
+
+/*
+ *  Magic staff related with cpu frequency
+ */
+#define CPUFREQ_DETECT_LOOP_SIZE 20
+#define CPUFREQ_DETECT_TIME_UPPER 100 /* 100 ms */
 
 /*
  *  Check whether it has sched functions
@@ -20,3 +31,8 @@
  *  Check whether it supports CPUID
  */
 #cmakedefine HAVE_CPUID
+
+/*
+ *  Check whether it supports RDTSC
+ */
+#cmakedefine HAVE_RDTSC

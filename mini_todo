@@ -4,6 +4,69 @@
 	3.) if the avg cost is a lot different, then stop probing
 	4.) use perf/cpuid to confirm this
 
+
+how to do this?
+
+	1.) measure the L1-cache size and L1-TLB size
+	  assumption: we have fixed cache line and page size information
+	  complication:
+	    hard to measure some cache parameters(2005 sigmetrics, automated cache parameters)
+	  fact:
+	    a) we don't need associative degree, just size. If you kept on walking
+	    on continuous cache line, then at some time there will be large
+	    thrashing. For a four-way associate cache, you find 4 stages of
+	    such thrashing until all the sets are begining to miss.
+	    b) L1 TLB total size is larger than L1-cache, not entry count
+	    c) L1 entry count is smaller than L1 cache line count
+	  steps:
+	  1.1) we allocate several page, and heat it to avoid TLB miss
+	    a) walk to find out L1 size (ignore the set associative)
+	    b) report L1-size when thrashing
+	  1.2) we allocate sufficient pages
+	    a) start with n = 1
+	    b) for (i = 0; i < n; i++)
+	         visit page i for block (i % blocks_per_page)
+		 /* This ensures L1 cache would not miss */
+	    c) compare average visiting time with previous n, if no apparent change, ++n, goto a)
+	    d) report L1-TLB size
+
+	    do same thing for L1-huge TLB
+
+	2.) measure the L2-cache size and L2-TLB size
+	  assumption:
+	    all cache/TLB are inclusive
+	  complication:
+	    a) when measuring L2 cache size, L1 cache should miss, L1-TLB should not miss
+	    b) when measuring L2 TLB size, L1 cache should not miss (possible?), L1-TLB should miss
+	    c) if b) is not possible, then L1 cache should always miss, L2 cache should never miss
+	    d) if L2's associative set size is larger than one page's cache line count, then keep walking in a single page would not cause L2 to miss. But L2 may not be virtual mapped, and this causes problem if the pages are not continous. 
+
+	  fact:
+	    a) L1 cache contains less cache line number than L1-TLB does
+	    	(translate page size cache line count)
+	    b) huge page can be measured easily. 
+	    c) may be need kernel module to measure the actual size/Or we resort to 3rd choice
+	    that is make all the cache misses until we find the solution
+
+	  steps:
+	  2.1) we allocate huge page less than L1-huge page TLB size, larger than L1-Cache size
+	    a) walk on cache lines to find thrash timing
+	    b) report L2-size when thrashing, stop
+	  2.2) we allocate double L1-TLB size ('cause we can not determine associative degree)
+	    a) start with n = L1-TLB size + 1
+	    b) if complication case b) can meet
+	    	work as step 1.2-b
+	       else
+		/* heating phase */
+		let start_page = l1_cache_size / page_size + 1.
+		visit all the pages from 0 to start_page - 1
+		for (i = start_page, c = 0; i < start_page + n; i++, c++)
+		  visit page i % n at block (c % blocks_per_page)
+	    c) compare average visiting time with previous n, if no apparent change, ++n, goto b)
+	    d) report L2-TLB size
+
+	3.) compared with cpuid result
+
 2. purpose
 	1.) measure the cost to TLB miss, and zero out a page, turn off swap
 	2.) mmap a anonymous file of size N * L-2 TLB size
@@ -13,10 +76,26 @@
 	3.) check if madvice can improve the time
 	4.) optional (make system with few free pages, and try to see if the time is still the same)
 
+how to do this?
+	preparation: turn off swap. But be careful don't to make system crash
+	1.) allocate at free, size N megabyte, and measure:
+	  1.1) malloc time
+	  1.2) time to walk through the pages
+	  1.3) time to use madvice/ no advice
+	2.) make system has no much pool reservation, say, left with 4/3 N megabyte
+	  repeat step for several time, see the time cost
+
 3. purpose
-	1.) compare the cost to walk through a big page/small page
+	replace step 2's allocation to huge pages, and see the effect
+	also, use TLB size to illustrate
 
 4. purpose
-	1.) compile apache and measure the code size
-	2.) construct a simulating walk sequence on different copy of the code to see the overhead
-	3.) compare the cost of simulating shared object vs statis object
+	benchmark section:
+	1.) bind n thread to 1 core, and access n vs 1 copy of method, check the speed
+	2.) make the first case static method, second indirect jump
+	3.) compile apache and measure the code size
+	4.) run apache with input for
+		1 multithread static instance vs 1 multithread dynamic instance
+		1 multi process static instance vs 1 multi process dynamic instance
+
+
