@@ -12,11 +12,14 @@
 *******************************************************************************/
 
 #include "misc.h"
+#include "debug.h"
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <time.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 #ifdef HAVE_SCHED
@@ -44,7 +47,7 @@ uint64_t get_stamp()
 {
   int hi, lo;
   __asm__ __volatile__ (
-      "rdtscp\n"
+      "rdtsc\n"
       "movl %%eax, %0\n"
       "movl %%edx, %1\n"
       : "=&g"(lo), "=g"(hi):: "eax", "edx");
@@ -379,15 +382,23 @@ const int* get_mem_desc_keys(int* cnt)
 
 static double do_test_cpu_freq(int ref_us)
 {
-  int i;
+  int i, cnt = 0;
   double total = 0;
+  debug("test frequency for %lu\n", (unsigned long) ref_us);
+
   for (i = 0; i < CPUFREQ_DETECT_LOOP_SIZE; i++) {
     uint64_t sbegin = get_stamp();
     usleep(ref_us);
     uint64_t send = get_stamp();
-    total += (send - sbegin) / ref_us * 1E6; /* convert to Hz */
+    double tmp = (send - sbegin) / ref_us * 1E6; /* convert to Hz */
+    if (tmp < CPUFREQ_MIN_HINT || tmp > CPUFREQ_MAX_HINT)
+      continue;
+    total += tmp;
+    cnt++;
   }
-  return total / CPUFREQ_DETECT_LOOP_SIZE;
+  if (cnt == 0) return 0;
+  debug("report frequency for %f\n", total / cnt);
+  return total / cnt;
 }
 
 /*
@@ -409,8 +420,11 @@ static double test_cpu_freq()
    *  When difference is still larger than 1M
    */
   while (fabs(next - prev) > 1E6 && ref_us < CPUFREQ_DETECT_TIME_UPPER * 1000) {
-    prev = next;
-    next = test_cpu_freq(ref_us);
+    double tmp = do_test_cpu_freq(ref_us);
+    if (fabs(tmp) > CPUFREQ_MIN_HINT) {
+      prev = next;
+      next = tmp;
+    }
     ref_us *= 2;
   }
 
@@ -429,13 +443,6 @@ static void init_cpu_descs()
   cpu_info.prefetch_size = -1;
 }
 
-/*
- *  Read the CPU frequency
- */
-struct CPUDesc* get_cpu_desc(int cpu)
-{
-  return &cpu_info;
-}
 
 /*
  *  TODO
@@ -457,7 +464,7 @@ int hardware_prefetch_size()
   return cpu_info.prefetch_size;
 }
 
-double cpu_get_freq(int cpu)
+double cpu_freq(int cpu)
 {
   return cpu_info.freq;
 }
@@ -474,3 +481,72 @@ void fake_use(void* ptr)
   __asm__ __volatile__ ("test %0, %0\n": "=r"(ptr));
 }
 
+
+/***********************************************************************
+ *              Memory Manipulation Interface
+ ***********************************************************************/
+/*
+ *  Allocate pages, aligned to the size boundary
+ */
+char* alloc_pages(int cnt, int size)
+{
+  /*
+   *  It's not necessary to allocate pages with mmap, if it's large enough
+   */
+
+
+  return NULL;
+}
+
+/*
+ *  Use shmget like routine to allocate huge pages
+ */
+char* alloc_huge_pages(int cnt, int size)
+{
+  return NULL;
+}
+
+void free_huge_page(char* head)
+{
+
+}
+
+int walk(char* ptr, int len, int stride)
+{
+  int i;
+  register int sum = 0;
+  /*
+   *  Maybe need to rewrite it to assembly to ensure:
+   *  1. only one memory reference
+   *  2. few register operations
+   *  3. jump would not miss-predict
+   */
+  for (i = 0; i < len; i += stride)
+  {
+    sum += ptr[i];
+  }
+  return sum;
+}
+
+/*
+ *  It's actually undefined for num == 0
+ */
+uint8_t number_to_power(uint64_t num)
+{
+  uint8_t cnt = 0;
+  if (num) {
+    while ((num & 1) == 0) {
+      num >>= 1;
+      cnt++;
+    }
+  }
+  return cnt;
+}
+
+uint64_t power_to_number(uint8_t power)
+{
+  if (power == -1) 
+    return 0;
+  else
+    return ((uint64_t)1) << power;
+}

@@ -19,8 +19,10 @@
 /*
  *  Magic staff related with cpu frequency
  */
-#define CPUFREQ_DETECT_LOOP_SIZE 20
+#define CPUFREQ_DETECT_LOOP_SIZE 50
 #define CPUFREQ_DETECT_TIME_UPPER 100 /* 100 ms */
+#define CPUFREQ_MIN_HINT 5E8 /* 500MHz */
+#define CPUFREQ_MAX_HINT 5E9 /* 5GHz */
 
 /*
  *  Check whether it has sched functions

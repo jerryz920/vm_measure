@@ -3,6 +3,7 @@ project (VM_Measure)
 
 set (CMAKE_C_FLAGS "-g -O0")
 set (CMAKE_EXE_LINKER_FLAGS "-g -O0")
+set (USE_DEBUG on)
 
 option (X86 "whether this is a X86 compitable machine" ON)
 

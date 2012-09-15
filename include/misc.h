@@ -52,9 +52,8 @@ extern int set_thread_cpu(int index);
 const int* get_mem_desc_keys(int* cnt);
 const struct TLBDesc* get_tlb_desc(int key);
 const struct CacheDesc* get_cache_desc(int key);
-struct CPUDesc* get_cpu_desc(int cpu);
 int hardware_prefetch_size();
-double cpu_get_freq(int cpu);
+double cpu_freq(int cpu);
 void fake_use(void* ptr);
 #else
 #error "only support x86/64 platform now"
