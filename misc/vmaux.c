@@ -16,6 +16,10 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/mman.h>
 #include <time.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -493,40 +497,85 @@ char* alloc_pages(int cnt, int size)
   /*
    *  It's not necessary to allocate pages with mmap, if it's large enough
    */
-
-
-  return NULL;
+  char* ptr = malloc(cnt * size);
+  if (ptr)
+    memset(ptr, 0, cnt * size);
+  return ptr;
 }
 
 /*
  *  Use shmget like routine to allocate huge pages
  */
-char* alloc_huge_pages(int cnt, int size)
+static int huge_page_index = 0;
+struct HugePage* alloc_huge_pages(int cnt, int size)
 {
+  int shmid = shmget(IPC_PRIVATE, cnt * size, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
+  if (shmid < 0)
+    return NULL;
+
+  struct HugePage* new_page = malloc(sizeof(struct HugePage));
+  if (!new_page) {
+    shmctl(shmid, IPC_RMID, NULL);
+    return NULL;
+  }
+  new_page->shmid = shmid;
+  new_page->pcnt = cnt;
+  new_page->psize = size;
+  new_page->addr = shmat(k, NULL, 0);
+  if (new_page->addr == (void*)-1) {
+    free(new_page);
+    shmctl(shmid, IPC_RMID, NULL);
+  }
   return NULL;
 }
 
-void free_huge_page(char* head)
+void free_huge_page(struct HugePage* head)
 {
-
+  shmdt(head->addr);
+  shmctl(shmid, IPC_RMID, NULL);
+  free(new_page);
 }
 
 int walk(char* ptr, int len, int stride)
 {
-  int i;
+  int i, total_stride = len / stride;
   register int sum = 0;
   /*
    *  Maybe need to rewrite it to assembly to ensure:
    *  1. only one memory reference
    *  2. few register operations
    *  3. jump would not miss-predict
+   *
+   *  Consider to rewrite in assembly if compiler can
+   *  not translate to register-base-scale addressing mode
    */
-  for (i = 0; i < len; i += stride)
+  for (i = 0; i <= total_stride - 8; i += 8)
   {
-    sum += ptr[i];
+    sum += *(ptr);
+    sum += *(ptr + 1 * stride);
+    sum += *(ptr + 2 * stride);
+    sum += *(ptr + 3 * stride);
+    sum += *(ptr + 4 * stride);
+    sum += *(ptr + 5 * stride);
+    sum += *(ptr + 6 * stride);
+    sum += *(ptr + 7 * stride);
+  }
+  /*
+   *  Might ruin the order a little, but does not matter
+   */
+  switch(total_stride - i) {
+    case 7: sum += *(ptr + 7 * stride);
+    case 6: sum += *(ptr + 6 * stride);
+    case 5: sum += *(ptr + 5 * stride);
+    case 4: sum += *(ptr + 4 * stride);
+    case 3: sum += *(ptr + 3 * stride);
+    case 2: sum += *(ptr + 2 * stride);
+    case 1: sum += *(ptr + 1 * stride);
+    case 0:
   }
   return sum;
 }
+
 
 /*
  *  It's actually undefined for num == 0

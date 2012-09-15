@@ -16,6 +16,7 @@
  */
 #define TLB_SUPPORT_PAGE_SIZE_CNT  8
 
+
 /*
  *  Magic staff related with cpu frequency
  */
@@ -23,6 +24,12 @@
 #define CPUFREQ_DETECT_TIME_UPPER 100 /* 100 ms */
 #define CPUFREQ_MIN_HINT 5E8 /* 500MHz */
 #define CPUFREQ_MAX_HINT 5E9 /* 5GHz */
+
+/*
+ *  Walking on the pages, total memory we reference
+ */
+#define TOTAL_MEM_SMALL 128 * 1024 * 1024
+#define TOTAL_MEM_LARGE 256 * 1024 * 1024
 
 /*
  *  Check whether it has sched functions
@@ -43,3 +50,11 @@
  *  Debug flag
  */
 #cmakedefine USE_DEBUG
+
+/*
+ *  Identify
+ */
+#cmakedefine HAVE_HUGE_TLB
+
+
+
