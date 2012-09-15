@@ -15,6 +15,7 @@
 #include "misc.h"
 #include "debug.h"
 
+#include <inttypes.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,10 +51,11 @@ struct CacheDesc measured_cache_info[4]; /* we don't see any level 4 cache curre
 struct CacheWalkCb {
   char* ptr;
   int total_size;
+  int loop;
   int stride;
 };
 
-static void init_cache_walk_cb(struct CacheWalkCb* cb, struct HugePage* pg, int walk_size, int cache_line)
+static void init_cache_walk_cb(struct CacheWalkCb* cb, struct HugePage* pg, int walk_size, int cache_line, int loop)
 {
   /*
    *  Check that huge page can still meet the requirement of the walk size
@@ -65,28 +67,37 @@ static void init_cache_walk_cb(struct CacheWalkCb* cb, struct HugePage* pg, int 
   cb->ptr = pg->addr;
   cb->stride = cache_line;
   cb->total_size = walk_size;
+  cb->loop = loop;
 }
 
-static int cache_walk(struct HugePage* pg, int walk_size, int loop, uint64_t* timep)
+static int do_cache_walk(struct CacheWalkCb* cb, double* timep)
 {
-  int sum = 0, i;
-  struct CacheWalkCb cb;
-  init_cache_walk_cb(&cb, pg, walk_size, CACHE_LINE);
-  /* walk to warm the cache and TLB, so later can go miss directly */
-  walk(cb.ptr, cb.total_size, cb.stride);
+  int i, sum = 0;
+  walk(cb->ptr, cb->total_size, cb->stride);
   uint64_t begin = get_usec();
-  for (i = 0; i < loop; i++)
-    walk(cb.ptr, cb.total_size, cb.stride);
+  for (i = 0; i < cb->loop; i++)
+    sum += walk(cb->ptr, cb->total_size, cb->stride);
   uint64_t end = get_usec();
-  *timep = end - begin;
+  *timep = 1.0 * (end - begin) * cb->stride / cb->loop/ cb->total_size;
+  return sum;
+}
+
+
+static int cache_walk(struct HugePage* pg, int walk_size, int64_t loop, double* timep)
+{
+  struct CacheWalkCb cb;
+  init_cache_walk_cb(&cb, pg, walk_size, CACHE_LINE, loop);
+  /* walk to warm the cache and TLB, so later can go miss directly */
+  int sum = do_cache_walk(&cb, timep);
+  printf("%d %"PRId64" %.5f\n", walk_size, loop, *timep);
   return sum;
 }
 
 static int do_measure_cache_info(int level, int previous_size, int total_mem)
 {
   int walk_size;
-  int sum = 0;
-  struct HugePage* base_page = alloc_huge_pages(total_mem / HUGE_PAGE_SIZE,
+  int sum = 100;
+  struct HugePage* base_page = alloc_huge_pages(total_mem / HUGE_PAGE_SIZE + 1,
     HUGE_PAGE_SIZE);
   if (!base_page) {
     ERR("can not allocate %d huge pages\n", total_mem / HUGE_PAGE_SIZE);
@@ -96,22 +107,60 @@ static int do_measure_cache_info(int level, int previous_size, int total_mem)
   double walk_time_prev = -1;
   double walk_time_curr = 0;
   printf("cache %d\n", level);
-  for (walk_size = previous_size? previous_size * 2: 1;
+  for (walk_size = previous_size? previous_size * 2: 4096;
       walk_size < total_mem; walk_size *= 2) {
-    debug("walk on size %d\n", walk_size);
-    sum += cache_walk(base_page, walk_size, total_mem / walk_size,
+    sum += cache_walk(base_page, walk_size, total_mem / walk_size * 10, 
         &walk_time_curr);
-    if (walk_time_prev > 0 && walk_time_curr > walk_time_prev * 2) {
+    if (walk_time_prev > 0 && walk_time_curr > walk_time_prev * 1.5) {
       measured_cache_info[level].data_cache = 1;
       measured_cache_info[level].level = level;
-      measured_cache_info[level].size = walk_size;
+      measured_cache_info[level].size = walk_size / 2; /* use previous size */
       measured_cache_info[level].line_size = CACHE_LINE;
+      break;
     }
-    printf("%d %.4f\n", walk_size, walk_time_curr);
     walk_time_prev = walk_time_curr;
   }
+  free_huge_page(base_page);
   return sum;
 }
+
+static int cache_way_walk(struct HugePage* pg, int test_way, int cache_size, double* timep)
+{
+  struct CacheWalkCb cb;
+  /*
+   *  At Most 256MB / 32KB = 8 * 1024 visit vary to 128 * 1024 visit
+   */
+
+  printf("%d %.5f\n", test_way, *timep);
+  return sum;
+}
+
+static int do_measure_cache_way(int level, int size, int total_mem)
+{
+  int test_way;
+  int sum = 100;
+  struct HugePage* base_page = alloc_huge_pages(total_mem / HUGE_PAGE_SIZE + 1,
+    HUGE_PAGE_SIZE);
+  if (!base_page) {
+    ERR("can not allocate %d huge pages\n", total_mem / HUGE_PAGE_SIZE);
+    exit(1);
+  }
+  
+  double walk_time_prev = -1;
+  double walk_time_curr = 0;
+  printf("cache way %d\n", level);
+  for (test_way = 2; test_way <= 32; test_way += 2) {
+    sum += cache_way_walk(base_page, test_way, size, &walk_time_curr);
+    if (walk_time_prev > 0 && walk_time_curr > walk_time_prev * 1.5) {
+      measured_cache_info[level].group_size = size / CACHE_LINE / (test_way - 2);
+      break;
+    }
+    walk_time_prev = walk_time_curr;
+  }
+  free_huge_page(base_page);
+  return sum;
+}
+
 
 
 
@@ -121,7 +170,16 @@ static void measure_cache_info()
   sum += do_measure_cache_info(1, 0, TOTAL_MEM_SMALL);
   sum += do_measure_cache_info(2, measured_cache_info[1].size, TOTAL_MEM_SMALL);
   sum += do_measure_cache_info(3, measured_cache_info[2].size, TOTAL_MEM_SMALL);
-  printf("useless sum %d\n", sum);
+  printf("cache size %d %d %d\n",
+      measured_cache_info[1].size,
+      measured_cache_info[2].size,
+      measured_cache_info[3].size);
+  sum += do_measure_cache_way(1, measured_cache_info[1].size, TOTAL_MEM_LARGE);
+  sum += do_measure_cache_way(2, measured_cache_info[2].size, TOTAL_MEM_LARGE);
+  printf("cache size %d %d %d\n",
+      measured_cache_info[1].group_size,
+      measured_cache_info[2].group_size);
+  printf("#useless sum %d\n", sum);
 }
 
 
@@ -172,6 +230,7 @@ static int measure_large_tlb_size(int level, int prev_tlb_size, int upper, int p
 
 int main()
 {
+  set_thread_cpu(0);
   measure_cache_info();
   return 0;
 }

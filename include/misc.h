@@ -102,7 +102,7 @@ void free_huge_page(struct HugePage* page);
 /*
  *  Memory walking
  */
-int walk(char* ptr, int len, int stride);
+int walk(const char* ptr, int len, int stride);
 /*
  *  Walk on pages one by one, visit exactly each page
  *  once. In ith page, we visit the (i) mod n cache line
@@ -114,22 +114,22 @@ int walk(char* ptr, int len, int stride);
   page_walk_ ## page_size ## _ ## cache_line ## _ ## n
 
 #define DEFINE_PAGE_WALK(page_size,cache_line, n) \
-  int PAGE_WALK_NAME(n, page_size, cache_line) (char* ptr, int page_cnt)\
+  int PAGE_WALK_NAME(page_size, cache_line, n) (char* ptr, int page_cnt)\
 {\
   register int sum = 0;\
   int i;\
   uint64_t off;\
 \
   for (i = 0; i <= page_cnt - 8; i += 8, ptr += 8 * page_size) {\
-    sum += *(ptr + (0 % n) * cache_line);\
-    sum += *(ptr + 1 * page_size + (1 % n) * cache_line);\
-    sum += *(ptr + 2 * page_size + (2 % n) * cache_line;\
-    sum += *(ptr + 3 * page_size + (3 % n) * cache_line;\
-    sum += *(ptr + 4 * page_size + (4 % n) * cache_line;\
-    sum += *(ptr + 5 * page_size + (5 % n) * cache_line;\
-    sum += *(ptr + 6 * page_size + (6 % n) * cache_line;\
-    sum += *(ptr + 7 * page_size + (7 % n) * cache_line;\
-  }\
+    sum += *(int*)(ptr + (0 % n) * cache_line);\
+    sum += *(int*)(ptr + 1 * page_size + (1 % n) * cache_line);\
+    sum += *(int*)(ptr + 2 * page_size + (2 % n) * cache_line);\
+    sum += *(int*)(ptr + 3 * page_size + (3 % n) * cache_line);\
+    sum += *(int*)(ptr + 4 * page_size + (4 % n) * cache_line);\
+    sum += *(int*)(ptr + 5 * page_size + (5 % n) * cache_line);\
+    sum += *(int*)(ptr + 6 * page_size + (6 % n) * cache_line);\
+    sum += *(int*)(ptr + 7 * page_size + (7 % n) * cache_line);\
+  } \
   switch(page_cnt - i) {\
     case 7: sum += *(ptr + 7 * page_size + (7 % n) * cache_line);\
     case 6: sum += *(ptr + 6 * page_size + (6 % n) * cache_line);\
@@ -143,16 +143,15 @@ int walk(char* ptr, int len, int stride);
 }\
 
 #define DEFINE_PAGE_WALK64(page_size) \
-  DEFINE_PAGE_WALK(page_size, 64, 0)\
-  DEFINE_PAGE_WALK(page_size, 64, 1)\
-  DEFINE_PAGE_WALK(page_size, 64, 2)\
-  DEFINE_PAGE_WALK(page_size, 64, 3)\
-  DEFINE_PAGE_WALK(page_size, 64, 4)\
-  DEFINE_PAGE_WALK(page_size, 64, 5)\
-  DEFINE_PAGE_WALK(page_size, 64, 6)\
+  DEFINE_PAGE_WALK(page_size, 64, 1 )\
+  DEFINE_PAGE_WALK(page_size, 64, 2 )\
+  DEFINE_PAGE_WALK(page_size, 64, 3 )\
+  DEFINE_PAGE_WALK(page_size, 64, 4 )\
+  DEFINE_PAGE_WALK(page_size, 64, 5 )\
+  DEFINE_PAGE_WALK(page_size, 64, 6 )\
+  DEFINE_PAGE_WALK(page_size, 64, 7 )\
 
 #define DEFINE_PAGE_WALK32(page_size) \
-  DEFINE_PAGE_WALK(page_size, 32, 0)\
   DEFINE_PAGE_WALK(page_size, 32, 1)\
   DEFINE_PAGE_WALK(page_size, 32, 2)\
   DEFINE_PAGE_WALK(page_size, 32, 3)\

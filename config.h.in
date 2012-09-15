@@ -9,7 +9,7 @@
  */
 #define CACHE_LINE      64
 #define PAGE_SIZE       4096
-#define HUGE_PAGE_SIZE  (4096 * 4096)
+#define HUGE_PAGE_SIZE  (1024 * 2048)
 #define CACHE_MAX_DESC (BYTE_SIZE)
 #define TLB_MAX_DESC   (BYTE_SIZE)
 /*
@@ -21,7 +21,7 @@
 /*
  *  Magic staff related with cpu frequency
  */
-#define CPUFREQ_DETECT_LOOP_SIZE 50
+#define CPUFREQ_DETECT_LOOP_SIZE 30
 #define CPUFREQ_DETECT_TIME_UPPER 100 /* 100 ms */
 #define CPUFREQ_MIN_HINT 5E8 /* 500MHz */
 #define CPUFREQ_MAX_HINT 5E9 /* 5GHz */
@@ -29,7 +29,7 @@
 /*
  *  Walking on the pages, total memory we reference
  */
-#define TOTAL_MEM_SMALL 64 * 1024 * 1024
+#define TOTAL_MEM_SMALL 32 * 1024 * 1024
 #define TOTAL_MEM_LARGE 256 * 1024 * 1024
 
 /*

@@ -11,6 +11,7 @@
 
 *******************************************************************************/
 
+#define _GNU_SOURCE
 #include "misc.h"
 #include "debug.h"
 #include <math.h>
@@ -24,12 +25,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /***********************************************************************
  *  Scheduler Support
  ***********************************************************************/
 #ifdef HAVE_SCHED
-#define __GNU_SOURCE
 #include <sched.h>
 /*
  *  Set the cpu affinity for calling thread
@@ -411,8 +412,6 @@ static double do_test_cpu_freq(int ref_us)
 {
   int i, cnt = 0;
   double total = 0;
-  debug("test frequency for %lu\n", (unsigned long) ref_us);
-
   for (i = 0; i < CPUFREQ_DETECT_LOOP_SIZE; i++) {
     uint64_t sbegin = get_stamp();
     usleep(ref_us);
@@ -424,7 +423,6 @@ static double do_test_cpu_freq(int ref_us)
     cnt++;
   }
   if (cnt == 0) return 0;
-  debug("report frequency for %f\n", total / cnt);
   return total / cnt;
 }
 
@@ -443,6 +441,7 @@ static double test_cpu_freq()
   double prev = 0, next = 1E10;
   int ref_us = 1; /* start from 1us */
 
+  fprintf(stderr, "testing cpu frequency\n");
   /*
    *  When difference is still larger than 1M
    */
@@ -454,6 +453,7 @@ static double test_cpu_freq()
     }
     ref_us *= 2;
   }
+  fprintf(stderr, "report cpu frequency to %.2fMHz\n", next / 1E6);
 
   return next;
 }
@@ -511,7 +511,7 @@ char* alloc_pages(int cnt, int size)
    */
   char* ptr = malloc(cnt * size);
   if (ptr)
-    memset(ptr, 0, cnt * size);
+    memset(ptr, -1, cnt * size);
   return ptr;
 }
 
@@ -522,11 +522,14 @@ static int huge_page_index = 0;
 struct HugePage* alloc_huge_pages(int cnt, int size)
 {
   int shmid = shmget(IPC_PRIVATE, cnt * size, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
-  if (shmid < 0)
+  if (shmid < 0) {
+    perror("get shm segment");
     return NULL;
+  }
 
   struct HugePage* new_page = malloc(sizeof(struct HugePage));
   if (!new_page) {
+    perror("allocate control block");
     shmctl(shmid, IPC_RMID, NULL);
     return NULL;
   }
@@ -535,10 +538,15 @@ struct HugePage* alloc_huge_pages(int cnt, int size)
   new_page->psize = size;
   new_page->addr = shmat(shmid, NULL, 0);
   if (new_page->addr == (void*)-1) {
+    perror("attach page");
     free(new_page);
     shmctl(shmid, IPC_RMID, NULL);
   }
-  return NULL;
+  /*
+   *  Warm the page
+   */
+  memset(new_page->addr, 0xcc, new_page->pcnt * new_page->psize);
+  return new_page;
 }
 
 void free_huge_page(struct HugePage* page)
@@ -548,7 +556,9 @@ void free_huge_page(struct HugePage* page)
   free(page);
 }
 
-int walk(char* ptr, int len, int stride)
+
+
+int walk(const char* ptr, int len, int stride)
 {
   int i, total_stride = len / stride;
   register int sum = 0;
@@ -561,17 +571,18 @@ int walk(char* ptr, int len, int stride)
    *  Consider to rewrite in assembly if compiler can
    *  not translate to register-base-scale addressing mode
    */
-  for (i = 0; i <= total_stride - 8; i += 8)
+  for (i = 0; i <= total_stride - 8; i += 8, ptr += 8 * stride)
   {
-    sum += *(ptr);
-    sum += *(ptr + 1 * stride);
-    sum += *(ptr + 2 * stride);
-    sum += *(ptr + 3 * stride);
-    sum += *(ptr + 4 * stride);
-    sum += *(ptr + 5 * stride);
-    sum += *(ptr + 6 * stride);
-    sum += *(ptr + 7 * stride);
+    sum += *(int*) (ptr);
+    sum += *(int*) (ptr + 1 * stride);
+    sum += *(int*) (ptr + 2 * stride);
+    sum += *(int*) (ptr + 3 * stride);
+    sum += *(int*) (ptr + 4 * stride);
+    sum += *(int*) (ptr + 5 * stride);
+    sum += *(int*) (ptr + 6 * stride);
+    sum += *(int*) (ptr + 7 * stride);
   }
+
   /*
    *  Might ruin the order a little, but does not matter
    */

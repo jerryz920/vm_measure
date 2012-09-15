@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project (VM_Measure)
 
-set (CMAKE_C_FLAGS "-g -O0")
-set (CMAKE_EXE_LINKER_FLAGS "-g -O0")
+set (CMAKE_C_FLAGS "-g -O2")
+set (CMAKE_EXE_LINKER_FLAGS "-g -O2")
 set (USE_DEBUG on)
 
 option (X86 "whether this is a X86 compitable machine" ON)
@@ -24,6 +24,8 @@ if (NOT HAVE_IPC_HEADER)
   message(FATAL_ERROR "missing ipc headers.")
 endif (NOT HAVE_IPC_HEADER)
 
+include (CheckSymbolExists)
+check_symbol_exists(SHM_HUGETLB "sys/ipc.h;sys/shm.h" HAVE_HUGE_TLB)
 
 include (CheckFunctionExists)
 #
@@ -32,11 +34,11 @@ include (CheckFunctionExists)
 set (CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 set (CMAKE_REQUIRED_INCLUDES sched.h)
 check_function_exists(sched_setaffinity HAVE_SCHED)
+check_symbol_exists(CPU_ZERO "sched.h" HAVE_SCHED)
+check_symbol_exists(CPU_SET "sched.h" HAVE_SCHED)
 set (CMAKE_REQUIRED_DEFINITIONS)
 set (CMAKE_REQUIRED_INCLUDES)
 
-include (CheckSymbolExists)
-check_symbol_exists(SHM_HUGETLB "sys/ipc.h;sys/shm.h" HAVE_HUGE_TLB)
 
 if (NOT HAVE_HUGE_TLB)
   message(FATAL_ERROR "missing huge tlb support.")
@@ -70,4 +72,6 @@ link_directories("${PROJECT_SOURCE_DIR}/misc")
 #target_link_libraries(tlbsz vmaux)
 
 add_executable(test_mykey test_mykey.c)
+add_executable(tlbsz tlbsz.c)
 target_link_libraries(test_mykey vmaux m rt)
+target_link_libraries(tlbsz vmaux m rt)
