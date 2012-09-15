@@ -19,6 +19,12 @@ if (NOT HAVE_POSIX_HEADER)
   message(FATAL_ERROR "missing posix headers.")
 endif (NOT HAVE_POSIX_HEADER)
 
+check_include_files("sys/mman.h;sys/ipc.h;sys/shm.h" HAVE_IPC_HEADER)
+if (NOT HAVE_IPC_HEADER)
+  message(FATAL_ERROR "missing ipc headers.")
+endif (NOT HAVE_IPC_HEADER)
+
+
 include (CheckFunctionExists)
 #
 #	Check sched exists
@@ -28,6 +34,14 @@ set (CMAKE_REQUIRED_INCLUDES sched.h)
 check_function_exists(sched_setaffinity HAVE_SCHED)
 set (CMAKE_REQUIRED_DEFINITIONS)
 set (CMAKE_REQUIRED_INCLUDES)
+
+include (CheckSymbolExists)
+check_symbol_exists(SHM_HUGETLB "sys/ipc.h;sys/shm.h" HAVE_HUGE_TLB)
+
+if (NOT HAVE_HUGE_TLB)
+  message(FATAL_ERROR "missing huge tlb support.")
+endif (NOT HAVE_HUGE_TLB)
+
 
 
 #
@@ -56,4 +70,4 @@ link_directories("${PROJECT_SOURCE_DIR}/misc")
 #target_link_libraries(tlbsz vmaux)
 
 add_executable(test_mykey test_mykey.c)
-target_link_libraries(test_mykey vmaux m)
+target_link_libraries(test_mykey vmaux m rt)

@@ -50,50 +50,70 @@ struct HugePage {
   char* addr;
 };
 
-
+/***********************************************************************
+ *  Scheduler Interface
+ ***********************************************************************/
 #ifdef HAVE_SCHED
 extern int set_thread_cpu(int index);
 #else
 #define set_cpu(x) ((void*)0)
 #endif
 
-#ifdef HAVE_CPUID
-const int* get_mem_desc_keys(int* cnt);
-const struct TLBDesc* get_tlb_desc(int key);
-const struct CacheDesc* get_cache_desc(int key);
-int hardware_prefetch_size();
-double cpu_freq(int cpu);
-void fake_use(void* ptr);
-#else
-#error "only support x86/64 platform now"
-#endif
+/***********************************************************************
+ *  Timing Support
+ ***********************************************************************/
 
 #ifdef HAVE_RDTSC
 uint64_t get_stamp();
 #endif
 
 struct timeval;
-uint64_t timeval_diff(const struct timeval* t1, const struct timeval* t2);
+struct timespec;
+
+uint64_t time_diff(const struct timeval* t1, const struct timeval* t2);
+uint64_t spec_diff(const struct timespec* t1, const struct timespec* t2);
+uint64_t get_usec();
+uint64_t get_nsec();
+
+/***********************************************************************
+ *  CPU Interface
+ ***********************************************************************/
+#ifdef HAVE_CPUID
+const int* get_mem_desc_keys(int* cnt);
+const struct TLBDesc* get_tlb_desc(int key);
+const struct CacheDesc* get_cache_desc(int key);
+int hardware_prefetch_size();
+double cpu_freq(int cpu);
+#else
+#error "only support x86/64 platform now"
+#endif
 
 
-uint8_t number_to_power(uint64_t num);
-uint64_t power_to_number(uint8_t power);
-
-int walk(char* ptr, int len, int stride);
-int page_walk(char* ptr, int page_count, int page_size, int stride, int max_stride);
-
+/***********************************************************************
+ *              Memory Manipulation Interface
+ ***********************************************************************/
+/*
+ *  Allocation/Deallocation
+ */
+char* alloc_pages(int cnt, int size);
+struct HugePage* alloc_huge_pages(int cnt, int size);
+void free_huge_page(struct HugePage* page);
 
 /*
+ *  Memory walking
+ */
+int walk(char* ptr, int len, int stride);
+/*
  *  Walk on pages one by one, visit exactly each page
- *  once. In ith page, we visit the (i) mod stride cache line
+ *  once. In ith page, we visit the (i) mod n cache line
  *
  *  We manually template these so that most offset can be 
  *  constant...
  */
-#define PAGE_WALK_NAME(page_size, cache_line, stride) \
-  page_walk ## page_size ## cache_line ## stride
+#define PAGE_WALK_NAME(page_size, cache_line, n) \
+  page_walk_ ## page_size ## _ ## cache_line ## _ ## n
 
-#define DEFINE_PAGE_WALK(page_size,cache_line,stride) \
+#define DEFINE_PAGE_WALK(page_size,cache_line, n) \
   int PAGE_WALK_NAME(n, page_size, cache_line) (char* ptr, int page_cnt)\
 {\
   register int sum = 0;\
@@ -118,7 +138,6 @@ int page_walk(char* ptr, int page_count, int page_size, int stride, int max_stri
     case 3: sum += *(ptr + 3 * page_size + (3 % n) * cache_line);\
     case 2: sum += *(ptr + 2 * page_size + (2 % n) * cache_line);\
     case 1: sum += *(ptr + 1 * page_size + (1 % n) * cache_line);\
-    case 0:\
   }\
   return sum;\
 }\
@@ -144,5 +163,12 @@ int page_walk(char* ptr, int page_count, int page_size, int stride, int max_stri
 
 #define CALL_PAGE_WALK(page_size, cache_line, n, ptr, page_cnt) \
       PAGE_WALK_NAME(page_size, cache_line, n)(ptr, page_cnt)
+
+/***********************************************************************
+ *  Misc
+ ***********************************************************************/
+uint8_t number_to_power(uint64_t num);
+uint64_t power_to_number(uint8_t power);
+void fake_use(void* ptr);
 
 #endif

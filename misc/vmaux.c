@@ -25,7 +25,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+/***********************************************************************
+ *  Scheduler Support
+ ***********************************************************************/
 #ifdef HAVE_SCHED
 #define __GNU_SOURCE
 #include <sched.h>
@@ -43,8 +45,13 @@ int set_thread_cpu(int cpu)
 #endif
 
 
+/***********************************************************************
+ *  Timing Support
+ ***********************************************************************/
 /*
- *  High precision stamp
+ * @Deprecated
+ *  High precision stamp. But hard to use because the TSC counter is
+ *  not performing well
  */
 #ifdef HAVE_RDTSC
 uint64_t get_stamp()
@@ -59,7 +66,6 @@ uint64_t get_stamp()
 }
 #endif
 
-
 /*
  *  
  */
@@ -69,11 +75,28 @@ uint64_t time_diff(const struct timeval* t1, const struct timeval* t2)
   return d * 1000000 - (t2->tv_usec - t1->tv_usec);
 }
 
+uint64_t spec_diff(const struct timespec* t1, const struct timespec* t2)
+{
+  uint64_t d = t1->tv_sec - t2->tv_sec;
+  return d * 1000000000 - (t2->tv_nsec - t1->tv_nsec);
+}
 
+uint64_t get_usec()
+{
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  return t.tv_usec + t.tv_sec * (uint64_t)1000000;
+}
+
+uint64_t get_nsec()
+{
+  struct timespec t;
+  clock_gettime(CLOCK_REALTIME, &t);
+  return t.tv_nsec = t.tv_sec * (uint64_t)1000000;
+}
 
 /***********************************************************************
- *  CPU dependent features
- *    Currently just support x86/64 platform with CPUID and RDTSC
+ *                    CPU dependent features
  ***********************************************************************/
 /*
  *  Records things from cpu id
@@ -474,17 +497,6 @@ double cpu_freq(int cpu)
 }
 
 
-/***********************************************************************
- *              Some helper function
- ***********************************************************************/
-/*
- *  to cancel the optimization for dead defs
- */
-void fake_use(void* ptr)
-{
-  __asm__ __volatile__ ("test %0, %0\n": "=r"(ptr));
-}
-
 
 /***********************************************************************
  *              Memory Manipulation Interface
@@ -521,7 +533,7 @@ struct HugePage* alloc_huge_pages(int cnt, int size)
   new_page->shmid = shmid;
   new_page->pcnt = cnt;
   new_page->psize = size;
-  new_page->addr = shmat(k, NULL, 0);
+  new_page->addr = shmat(shmid, NULL, 0);
   if (new_page->addr == (void*)-1) {
     free(new_page);
     shmctl(shmid, IPC_RMID, NULL);
@@ -529,11 +541,11 @@ struct HugePage* alloc_huge_pages(int cnt, int size)
   return NULL;
 }
 
-void free_huge_page(struct HugePage* head)
+void free_huge_page(struct HugePage* page)
 {
-  shmdt(head->addr);
-  shmctl(shmid, IPC_RMID, NULL);
-  free(new_page);
+  shmdt(page->addr);
+  shmctl(page->shmid, IPC_RMID, NULL);
+  free(page);
 }
 
 int walk(char* ptr, int len, int stride)
@@ -571,11 +583,21 @@ int walk(char* ptr, int len, int stride)
     case 3: sum += *(ptr + 3 * stride);
     case 2: sum += *(ptr + 2 * stride);
     case 1: sum += *(ptr + 1 * stride);
-    case 0:
   }
   return sum;
 }
 
+
+/***********************************************************************
+ *              Misc
+ ***********************************************************************/
+/*
+ *  to cancel the optimization for dead defs
+ */
+void fake_use(void* ptr)
+{
+  __asm__ __volatile__ ("test %0, %0\n": "=r"(ptr));
+}
 
 /*
  *  It's actually undefined for num == 0

@@ -8,6 +8,8 @@
  *  Parameters for cache/TLB
  */
 #define CACHE_LINE      64
+#define PAGE_SIZE       4096
+#define HUGE_PAGE_SIZE  (4096 * 4096)
 #define CACHE_MAX_DESC (BYTE_SIZE)
 #define TLB_MAX_DESC   (BYTE_SIZE)
 /*
@@ -15,7 +17,6 @@
  *  are not much copy of this information
  */
 #define TLB_SUPPORT_PAGE_SIZE_CNT  8
-
 
 /*
  *  Magic staff related with cpu frequency
@@ -28,7 +29,7 @@
 /*
  *  Walking on the pages, total memory we reference
  */
-#define TOTAL_MEM_SMALL 128 * 1024 * 1024
+#define TOTAL_MEM_SMALL 64 * 1024 * 1024
 #define TOTAL_MEM_LARGE 256 * 1024 * 1024
 
 /*
