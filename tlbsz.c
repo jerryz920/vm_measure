@@ -124,14 +124,13 @@ static int do_measure_cache_info(int level, int previous_size, int total_mem)
   return sum;
 }
 
+
 static int cache_way_walk(struct HugePage* pg, int test_way, int cache_size, double* timep)
 {
-  struct CacheWalkCb cb;
-  /*
-   *  At Most 256MB / 32KB = 8 * 1024 visit vary to 128 * 1024 visit
-   */
+  int sum = 0; 
 
-  printf("%d %.5f\n", test_way, *timep);
+
+
   return sum;
 }
 

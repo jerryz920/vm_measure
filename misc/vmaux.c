@@ -598,6 +598,264 @@ int walk(const char* ptr, int len, int stride)
   return sum;
 }
 
+typedef int (*SmallWalkFunc) (char* ptr, int stride, int loop);
+
+/*
+ *  for each loop, just walk 4 stride
+ */
+static int small_walk2(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3), %1\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride)
+      );
+  return sum;
+}
+
+static int small_walk3(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "movl $0, %0\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3), %1\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride)
+      );
+  return sum;
+}
+
+static int small_walk4(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3,%4,4), %1\n"
+      "addl (%3,%4,5), %1\n"
+      "addl (%3,%4,6), %1\n"
+      "addl (%3,%4,7), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride)
+      );
+  return sum;
+}
+
+static int small_walk5(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  char* tmp = ptr + 5 * stride;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3,%4,4), %1\n"
+      "addl (%5), %1\n"
+      "addl (%5,%4,1), %1\n"
+      "addl (%5,%4,2), %1\n"
+      "addl (%5,%4,3), %1\n"
+      "addl (%5,%4,4), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      );
+  return sum;
+}
+
+static int small_walk6(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  char* tmp = ptr + 6 * stride;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3,%4,4), %1\n"
+      "addl (%3,%4,5), %1\n"
+      "addl (%5), %1\n"
+      "addl (%5,%4,1), %1\n"
+      "addl (%5,%4,2), %1\n"
+      "addl (%5,%4,3), %1\n"
+      "addl (%5,%4,4), %1\n"
+      "addl (%5,%4,5), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      );
+  return sum;
+}
+
+static int small_walk7(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  char* tmp = ptr + 7 * stride;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3,%4,4), %1\n"
+      "addl (%3,%4,5), %1\n"
+      "addl (%3,%4,6), %1\n"
+      "addl (%5), %1\n"
+      "addl (%5,%4,1), %1\n"
+      "addl (%5,%4,2), %1\n"
+      "addl (%5,%4,3), %1\n"
+      "addl (%5,%4,4), %1\n"
+      "addl (%5,%4,5), %1\n"
+      "addl (%5,%4,6), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      );
+  return sum;
+}
+
+static int small_walk8(char* ptr, int stride, int loop)
+{
+  int i = 0, sum = 0;
+  char* tmp = ptr + 8 * stride;
+  __asm__ __volatile__(
+      "testl %2, %2\n"
+      "jz end_loop\n"
+      "walk_loop:\n"
+      "addl (%3), %1\n"
+      "incl %0\n"
+      "addl (%3,%4,1), %1\n"
+      "addl (%3,%4,2), %1\n"
+      "addl (%3,%4,3), %1\n"
+      "addl (%3,%4,4), %1\n"
+      "addl (%3,%4,5), %1\n"
+      "addl (%3,%4,6), %1\n"
+      "addl (%3,%4,7), %1\n"
+      "addl (%5), %1\n"
+      "addl (%5,%4,1), %1\n"
+      "addl (%5,%4,2), %1\n"
+      "addl (%5,%4,3), %1\n"
+      "addl (%5,%4,4), %1\n"
+      "addl (%5,%4,5), %1\n"
+      "addl (%5,%4,6), %1\n"
+      "addl (%5,%4,7), %1\n"
+      "cmpl %0, %2\n"
+      "jne walk_loop\n"
+      "end_loop:\n"
+      : "=r"(i), "=r"(sum)
+      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+    );
+  return sum;
+}
+
+static int large_walk_func(char* ptr, int stride, int loop)
+{
+  int i = 0, j, sum = 0;
+  for (i = 0; i < loop; i++) {
+    char* tmp = ptr;
+    for(j = 0; j <= stride - 8; j += 8, tmp += 8 * stride) {
+      __asm__ __volatile(
+          "addl (%1), %0\n"
+          "addl (%1,%2,1), %0\n"
+          "addl (%1,%2,2), %0\n"
+          "addl (%1,%2,3), %0\n"
+          "addl (%1,%2,4), %0\n"
+          "addl (%1,%2,5), %0\n"
+          "addl (%1,%2,6), %0\n"
+          "addl (%1,%2,7), %0\n"
+          : "=r"(sum)
+          : "r"(tmp), "r"(stride)
+          );
+    }
+    switch (stride - j) {
+      case 7: sum += *(int*)(tmp + 7 * stride);
+      case 6: sum += *(int*)(tmp + 6 * stride);
+      case 5: sum += *(int*)(tmp + 5 * stride);
+      case 4: sum += *(int*)(tmp + 4 * stride);
+      case 3: sum += *(int*)(tmp + 3 * stride);
+      case 2: sum += *(int*)(tmp + 2 * stride);
+      case 1: sum += *(int*)(tmp + 1 * stride);
+    }
+  }
+  return sum;
+}
+
+/*
+ *  We just create small walk function for 2, 4, 8, 16, 32 way thrashing
+ */
+static SmallWalkFunc small_walk_funcs[9] = {
+  NULL,
+  NULL,
+  walk2,
+  walk3,
+  walk4,
+  walk5,
+  walk6,
+  walk7,
+  walk8
+};
+
+
+int small_walk(char* ptr, int stride, int loop, int n)
+{
+  if (n < 2) return -1;
+  if (n > 8) return large_walk_func(ptr, stride, loop);
+  return small_walk_funcs[n](ptr, stride, loop);
+}
+
 
 /***********************************************************************
  *              Misc
