@@ -316,8 +316,8 @@ static int do_measure_tlb1(int mem_total, int prev_tlb, char* base_page, struct 
    */
   for (test_page = prev_tlb? 1: prev_tlb; test_page < max_page_to_test; test_page *= 2) {
     int loop = mem_total / test_page / page_size;
-    sum += tlb_walk(pages, test_page, page_size, usable_set, page_size + CACHE_LINE, loop, &time_curr) ;
-    if (time_prev > 0 && time_curr > timeprev * 1.25) {
+    sum += tlb_walk(base_page, test_page, page_size, usable_set, page_size + CACHE_LINE, loop, &time_curr) ;
+    if (time_prev > 0 && time_curr > time_prev * 1.25) {
       tlb->size = test_page; /*we are walking over two * test_page in fact*/
       break;
     }
@@ -335,9 +335,10 @@ static int do_measure_tlb2(int mem_total, char* base_page, struct TLBDesc* tlb, 
   int l1_cache_sz = measured_cache_info[1].size;
   int l1_cache_way = l1_cache_sz / measured_cache_info[1].group_size / CACHE_LINE;
   int l2_cache_sz = measured_cache_info[2].size;
-  int l2_cache_way = l2_cache_sz / measured_cahce_info[2].group_size / CACHE_LINE;
+  int l2_cache_way = l2_cache_sz / measured_cache_info[2].group_size / CACHE_LINE;
   int l1_tlb_sz = measured_tlb_info[1].size;
   int test_page = 0;
+  int sum = 0;
   int usable_set = min(measured_cache_info[2].group_size, page_size / CACHE_LINE);
   int last_usable_set = min(measured_cache_info[1].group_size, page_size / CACHE_LINE);
   int max_page_test = usable_set * (l1_cache_way + l2_cache_way);
@@ -350,7 +351,7 @@ static int do_measure_tlb2(int mem_total, char* base_page, struct TLBDesc* tlb, 
   tlb->size = -1;
   for (test_page = l1_cache_way * last_usable_set; test_page <= max_page_test; test_page *= 2) {
     int loop = mem_total / test_page / page_size;
-    sum += tlb_walk(pages, test_page, page_size, usable_set, page_size + CACHE_LINE, loop, &time_curr) ;
+    sum += tlb_walk(base_page, test_page, page_size, usable_set, page_size + CACHE_LINE, loop, &time_curr) ;
     if (time_prev > 0 && time_curr > time_prev * 1.25) {
       tlb->size = test_page;
       break;
@@ -361,16 +362,6 @@ static int do_measure_tlb2(int mem_total, char* base_page, struct TLBDesc* tlb, 
   return sum;
 }
 
-struct PageGroup {
-  union {
-    struct  {
-      char* start;
-      int   len: 16;
-      int   exist: 1;
-    } pg;
-    char mem[16];
-  }
-};
 
 static int do_probe_pages(struct PageGroup* mark_list, int probe_line, int minimum_set, int maximum_set, int page_size)
 {
@@ -378,15 +369,17 @@ static int do_probe_pages(struct PageGroup* mark_list, int probe_line, int minim
   double time_prev = -1;
   double time_curr = 0;
 
-  int sum = 0;
-  char* page_size = alloc_page(maximum_set, page_size);
+  int sum = 0, i;
+  char* base_page = alloc_pages(maximum_set, page_size);
 
   for (i = minimum_set / 2; i <= maximum_set; i++) {
     int loop = TOTAL_MEM_SMALL / i;
     /*
      *  Walk with stride = page_size, nstride = i
      */
-    sum += cache_way_walk(base_page, test_way, size, &time_curr);
+    struct MemWalkCb cb;
+    init_mem_walk_cb(&cb, base_page, i * page_size, page_size, loop);
+    sum += do_mem_walk(&cb, &time_curr);
     if (time_prev > 0 && time_curr > time_prev * 1.25) {
       mark_list[probe_line].start = base_page;
       mark_list[probe_line].len = i * 2 - 1;
@@ -416,7 +409,7 @@ static int do_tlb_group_walk(struct PageGroup* group_list, int max_line, int tes
 
 static void free_page_group(struct PageGroup* gp)
 {
-  PageGroup* ptr = gp;
+  struct PageGroup* ptr = gp;
   while (ptr->exist) {
     free(ptr->start);
     ++ptr;
@@ -430,7 +423,7 @@ static int tlb_page_probe2(int total_mem, struct TLBDesc* tlb, int page_size)
   /*
    *  Allocate a page for storing the probing sequence
    */
-  char* data_page = alloc_page(1, page_size);
+  char* data_page = alloc_pages(1, page_size);
   memset(data_page, 0, page_size);
   struct PageGroup* mark_list = (struct PageGroup*) (data_page + page_size / 2);
 
@@ -441,25 +434,33 @@ static int tlb_page_probe2(int total_mem, struct TLBDesc* tlb, int page_size)
    */
   int usable_set = min(measured_cache_info[2].group_size, page_size / CACHE_LINE / 2);
 
-  int test_page, usable_page, next_set_to_probe;
+  int test_page, usable_page, next_to_probe;
 
   double time_prev = -1;
   double time_curr = 0;
 
   tlb->size = -1;
+  /*
+   *  @FIXME
+   *    this magic number should be some probability expectation. Fix
+   *    it by proper caculation
+   */
   for (test_page = (l1_way + l2_way) * usable_set * 2, usable_page = 0,
-      next_to_probe = 0; ; test_page *= 2) {
+      next_to_probe = 0; test_page < 8192; test_page *= 2) {
 
     /*
      *  Need page probing to find a set of page to walk over
      */
     if (usable_page < test_page) {
       for (; next_to_probe < usable_set && usable_page < test_page; next_to_probe++) {
-        int good_pages = do_probe_pages(mark_list, next_to_probe, l1_way + l2_way, page_size);
+        int good_pages = do_probe_pages(mark_list, next_to_probe, l1_way + l2_way, 
+            l1_way * measured_cache_info[1].group_size + l2_way * measured_cache_info[2].group_size, /* the most page we can touch before cache miss */
+            page_size);
         if (good_pages > 0)
           usable_page += good_pages;
       }
     }
+    int loop = TOTAL_MEM_LARGE / test_page;
     sum += do_tlb_group_walk(mark_list, next_to_probe, test_page, page_size, loop, &time_curr);
     if (time_prev > 0 && time_curr > time_prev * 1.25) {
       tlb->size = test_page / 2;
@@ -481,8 +482,8 @@ static int measure_tlb()
   sum += do_measure_tlb1(TOTAL_MEM_LARGE, 0, hpgs->addr, &measured_huge_tlb_info[1], HUGE_PAGE_SIZE);
   free_huge_page(hpgs);
 
-  char* pages = alloc_pages(TOTAL_MEM_LARGE / PAGE_SIZE, PAGE_SIZE);
-  int sum += do_measure_tlb1(TOTAL_MEM_LARGE, measured_tlb_info[1].size, pages, &measured_tlb_info[2], 
+  pages = alloc_pages(TOTAL_MEM_LARGE / PAGE_SIZE, PAGE_SIZE);
+  sum += do_measure_tlb1(TOTAL_MEM_LARGE, measured_tlb_info[1].size, pages, &measured_tlb_info[2], 
       PAGE_SIZE);
   if (measured_tlb_info[2].size == -1)
     sum = do_measure_tlb2(TOTAL_MEM_LARGE, pages, &measured_tlb_info[2], PAGE_SIZE);
@@ -493,7 +494,6 @@ static int measure_tlb()
   return sum;
 }
 
-static int 
 
 
 
