@@ -557,13 +557,9 @@ void free_huge_page(struct HugePage* page)
   free(page);
 }
 
-/*
- *  @Deprecated
- *    not general enough for cache/TLB walk. Replaced by small walk
- */
-static int reference_walk(const char* ptr, int len, int stride)
+static int plain_walk(const char* ptr, int nstride, int stride)
 {
-  int i, total_stride = len / stride;
+  int i;
   register int sum = 0;
   /*
    *  Maybe need to rewrite it to assembly to ensure:
@@ -574,7 +570,7 @@ static int reference_walk(const char* ptr, int len, int stride)
    *  Consider to rewrite in assembly if compiler can
    *  not translate to register-base-scale addressing mode
    */
-  for (i = 0; i <= total_stride - 8; i += 8, ptr += 8 * stride)
+  for (i = 0; i <= nstride - 8; i += 8, ptr += 8 * stride)
   {
     sum += *(int*) (ptr);
     sum += *(int*) (ptr + 1 * stride);
@@ -589,7 +585,7 @@ static int reference_walk(const char* ptr, int len, int stride)
   /*
    *  Might ruin the order a little, but does not matter
    */
-  switch(total_stride - i) {
+  switch(nstride - i) {
     case 7: sum += *(ptr + 7 * stride);
     case 6: sum += *(ptr + 6 * stride);
     case 5: sum += *(ptr + 5 * stride);
@@ -993,6 +989,30 @@ int period_walk(const char* ptr, int loop, int nperiod, int period,
   return large_period_walk(ptr, loop, nperiod, period, nstride, stride);
 }
 
+
+/*
+ *  Group walk is simple, just walk with stride 0 inside each group, and start
+ *  next group from an address offset group_stride
+ *  
+ */
+int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_stride, int inner_group_stride)
+{
+  int sum = 0;
+  int i, j;
+
+  for (i = 0; i < loop; i++) {
+    for (j = 0; j < max_line; j++) {
+      /*
+       *  Note this reference would not cause cache miss since it's placed on the
+       *  top half of a page, and all the following reference will go in bottom half
+       */
+      if (pg[j].exist) {
+        sum += plain_walk(pg[j].start + j * inter_group_stride, pg[j].len, inner_group_stride);
+      }
+    }
+  }
+  return sum;
+}
 
 /***********************************************************************
  *              Misc

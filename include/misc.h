@@ -50,6 +50,17 @@ struct HugePage {
   char* addr;
 };
 
+struct PageGroup {
+  union {
+    struct {
+      char* start;
+      int16_t len;
+      int exist:1;
+    };
+    char mem[16];
+  };
+};
+
 /***********************************************************************
  *  Scheduler Interface
  ***********************************************************************/
@@ -111,6 +122,16 @@ int walk(const char* ptr, int stride, int loop, int nway);
  *
  */
 int period_walk(const char* ptr, int loop, int nperiod, int period, int nstride, int stride);
+
+
+/*
+ *  A group walk is a walk with several page groups,
+ *  each group is a segment of continous memory.
+ *  During walking, the inner_group_size specified
+ *  how to walk within a group. And the inter_group_stride means before start a walk in a group, the offset to be add to the start address in a group
+ *
+ */
+int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_stride, int inner_group_stride);
 
 /*
  * @DEPRECATED
