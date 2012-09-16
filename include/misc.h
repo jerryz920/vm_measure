@@ -100,16 +100,29 @@ struct HugePage* alloc_huge_pages(int cnt, int size);
 void free_huge_page(struct HugePage* page);
 
 /*
- *  Memory walking
+ *  Specific for small walk to test cache way
  */
-int walk(const char* ptr, int len, int stride);
+int walk(const char* ptr, int stride, int loop, int nway);
+
 /*
+ *  This will walk loop * period * nstride memory location.
+ *    The location visited would be repeatedly at
+ *    ptr + j * period + k * stride, here k >= 0 && k < nstride, j >= 0 && j < nperiod
+ *
+ */
+int period_walk(const char* ptr, int loop, int nperiod, int period, int nstride, int stride);
+
+/*
+ * @DEPRECATED
+ *  use period_walk instead
+ *
  *  Walk on pages one by one, visit exactly each page
  *  once. In ith page, we visit the (i) mod n cache line
  *
  *  We manually template these so that most offset can be 
  *  constant...
  */
+#if 0
 #define PAGE_WALK_NAME(page_size, cache_line, n) \
   page_walk_ ## page_size ## _ ## cache_line ## _ ## n
 
@@ -131,13 +144,13 @@ int walk(const char* ptr, int len, int stride);
     sum += *(int*)(ptr + 7 * page_size + (7 % n) * cache_line);\
   } \
   switch(page_cnt - i) {\
-    case 7: sum += *(ptr + 7 * page_size + (7 % n) * cache_line);\
-    case 6: sum += *(ptr + 6 * page_size + (6 % n) * cache_line);\
-    case 5: sum += *(ptr + 5 * page_size + (5 % n) * cache_line);\
-    case 4: sum += *(ptr + 4 * page_size + (4 % n) * cache_line);\
-    case 3: sum += *(ptr + 3 * page_size + (3 % n) * cache_line);\
-    case 2: sum += *(ptr + 2 * page_size + (2 % n) * cache_line);\
-    case 1: sum += *(ptr + 1 * page_size + (1 % n) * cache_line);\
+    case 7: sum += *(int*)(ptr + 7 * page_size + (7 % n) * cache_line);\
+    case 6: sum += *(int*)(ptr + 6 * page_size + (6 % n) * cache_line);\
+    case 5: sum += *(int*)(ptr + 5 * page_size + (5 % n) * cache_line);\
+    case 4: sum += *(int*)(ptr + 4 * page_size + (4 % n) * cache_line);\
+    case 3: sum += *(int*)(ptr + 3 * page_size + (3 % n) * cache_line);\
+    case 2: sum += *(int*)(ptr + 2 * page_size + (2 % n) * cache_line);\
+    case 1: sum += *(int*)(ptr + 1 * page_size + (1 % n) * cache_line);\
   }\
   return sum;\
 }\
@@ -162,6 +175,7 @@ int walk(const char* ptr, int len, int stride);
 
 #define CALL_PAGE_WALK(page_size, cache_line, n, ptr, page_cnt) \
       PAGE_WALK_NAME(page_size, cache_line, n)(ptr, page_cnt)
+#endif
 
 /***********************************************************************
  *  Misc

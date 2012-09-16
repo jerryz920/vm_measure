@@ -15,6 +15,7 @@
 #include "misc.h"
 #include "debug.h"
 #include <math.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -556,9 +557,11 @@ void free_huge_page(struct HugePage* page)
   free(page);
 }
 
-
-
-int walk(const char* ptr, int len, int stride)
+/*
+ *  @Deprecated
+ *    not general enough for cache/TLB walk. Replaced by small walk
+ */
+static int reference_walk(const char* ptr, int len, int stride)
 {
   int i, total_stride = len / stride;
   register int sum = 0;
@@ -598,262 +601,396 @@ int walk(const char* ptr, int len, int stride)
   return sum;
 }
 
-typedef int (*SmallWalkFunc) (char* ptr, int stride, int loop);
+typedef int (*SmallWalkFunc) (const char* ptr, int64_t stride, int loop);
 
 /*
- *  for each loop, just walk 4 stride
+ *  for each loop,
  */
-static int small_walk2(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_1(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
+  int sum = 0;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3), %1\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride)
       );
   return sum;
 }
 
-static int small_walk3(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_2(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "movl $0, %0\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3), %1\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3)
       );
   return sum;
 }
 
-static int small_walk4(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_3(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  int64_t stride5 = 5 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3,%4,4), %1\n"
-      "addl (%3,%4,5), %1\n"
-      "addl (%3,%4,6), %1\n"
-      "addl (%3,%4,7), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%1, %2, 4), %0\n"
+      "addl (%1, %4, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(stride5)
       );
   return sum;
 }
 
-static int small_walk5(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_4(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
-  char* tmp = ptr + 5 * stride;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  const char* tmp = ptr + 4 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3,%4,4), %1\n"
-      "addl (%5), %1\n"
-      "addl (%5,%4,1), %1\n"
-      "addl (%5,%4,2), %1\n"
-      "addl (%5,%4,3), %1\n"
-      "addl (%5,%4,4), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%4), %0\n"
+      "addl (%4, %2, 1), %0\n"
+      "addl (%4, %2, 2), %0\n"
+      "addl (%4, %3, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(tmp)
       );
   return sum;
 }
 
-static int small_walk6(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_5(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
-  char* tmp = ptr + 6 * stride;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  const char* tmp = ptr + 5 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3,%4,4), %1\n"
-      "addl (%3,%4,5), %1\n"
-      "addl (%5), %1\n"
-      "addl (%5,%4,1), %1\n"
-      "addl (%5,%4,2), %1\n"
-      "addl (%5,%4,3), %1\n"
-      "addl (%5,%4,4), %1\n"
-      "addl (%5,%4,5), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%1, %2, 4), %0\n"
+      "addl (%4), %0\n"
+      "addl (%4, %2, 1), %0\n"
+      "addl (%4, %2, 2), %0\n"
+      "addl (%4, %3, 1), %0\n"
+      "addl (%4, %2, 4), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(tmp)
       );
   return sum;
 }
 
-static int small_walk7(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_6(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
-  char* tmp = ptr + 7 * stride;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  int64_t stride5 = 5 * stride;
+  const char* tmp = ptr + 6 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3,%4,4), %1\n"
-      "addl (%3,%4,5), %1\n"
-      "addl (%3,%4,6), %1\n"
-      "addl (%5), %1\n"
-      "addl (%5,%4,1), %1\n"
-      "addl (%5,%4,2), %1\n"
-      "addl (%5,%4,3), %1\n"
-      "addl (%5,%4,4), %1\n"
-      "addl (%5,%4,5), %1\n"
-      "addl (%5,%4,6), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%1, %2, 4), %0\n"
+      "addl (%1, %5, 1), %0\n"
+      "addl (%4), %0\n"
+      "addl (%4, %2, 1), %0\n"
+      "addl (%4, %2, 2), %0\n"
+      "addl (%4, %3, 1), %0\n"
+      "addl (%4, %2, 4), %0\n"
+      "addl (%4, %5, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(tmp), "r" (stride5)
       );
   return sum;
 }
 
-static int small_walk8(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_7(const char* ptr, int64_t stride)
 {
-  int i = 0, sum = 0;
-  char* tmp = ptr + 8 * stride;
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  int64_t stride5 = 5 * stride;
+  const char* tmp = ptr + 7 * stride;
   __asm__ __volatile__(
-      "testl %2, %2\n"
-      "jz end_loop\n"
-      "walk_loop:\n"
-      "addl (%3), %1\n"
-      "incl %0\n"
-      "addl (%3,%4,1), %1\n"
-      "addl (%3,%4,2), %1\n"
-      "addl (%3,%4,3), %1\n"
-      "addl (%3,%4,4), %1\n"
-      "addl (%3,%4,5), %1\n"
-      "addl (%3,%4,6), %1\n"
-      "addl (%3,%4,7), %1\n"
-      "addl (%5), %1\n"
-      "addl (%5,%4,1), %1\n"
-      "addl (%5,%4,2), %1\n"
-      "addl (%5,%4,3), %1\n"
-      "addl (%5,%4,4), %1\n"
-      "addl (%5,%4,5), %1\n"
-      "addl (%5,%4,6), %1\n"
-      "addl (%5,%4,7), %1\n"
-      "cmpl %0, %2\n"
-      "jne walk_loop\n"
-      "end_loop:\n"
-      : "=r"(i), "=r"(sum)
-      : "r"(loop), "r"(ptr), "r"(stride), "r"(tmp)
-    );
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%1, %2, 4), %0\n"
+      "addl (%1, %5, 1), %0\n"
+      "addl (%1, %3, 2), %0\n"
+      "addl (%4), %0\n"
+      "addl (%4, %2, 1), %0\n"
+      "addl (%4, %2, 2), %0\n"
+      "addl (%4, %3, 1), %0\n"
+      "addl (%4, %2, 4), %0\n"
+      "addl (%4, %5, 1), %0\n"
+      "addl (%4, %3, 2), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(tmp), "r" (stride5)
+      );
   return sum;
 }
 
-static int large_walk_func(char* ptr, int stride, int loop)
+static inline int small_walk_kernel_8(const char* ptr, int64_t stride)
 {
-  int i = 0, j, sum = 0;
-  for (i = 0; i < loop; i++) {
-    char* tmp = ptr;
-    for(j = 0; j <= stride - 8; j += 8, tmp += 8 * stride) {
-      __asm__ __volatile(
-          "addl (%1), %0\n"
-          "addl (%1,%2,1), %0\n"
-          "addl (%1,%2,2), %0\n"
-          "addl (%1,%2,3), %0\n"
-          "addl (%1,%2,4), %0\n"
-          "addl (%1,%2,5), %0\n"
-          "addl (%1,%2,6), %0\n"
-          "addl (%1,%2,7), %0\n"
-          : "=r"(sum)
-          : "r"(tmp), "r"(stride)
-          );
-    }
-    switch (stride - j) {
-      case 7: sum += *(int*)(tmp + 7 * stride);
-      case 6: sum += *(int*)(tmp + 6 * stride);
-      case 5: sum += *(int*)(tmp + 5 * stride);
-      case 4: sum += *(int*)(tmp + 4 * stride);
-      case 3: sum += *(int*)(tmp + 3 * stride);
-      case 2: sum += *(int*)(tmp + 2 * stride);
-      case 1: sum += *(int*)(tmp + 1 * stride);
-    }
+  int sum = 0;
+  int64_t stride3 = 3 * stride;
+  int64_t stride5 = 5 * stride;
+  int64_t stride7 = 7 * stride;
+  const char* tmp = ptr + 8 * stride;
+  __asm__ __volatile__(
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1, %2, 2), %0\n"
+      "addl (%1, %3, 1), %0\n"
+      "addl (%1, %2, 4), %0\n"
+      "addl (%1, %5, 1), %0\n"
+      "addl (%1, %3, 2), %0\n"
+      "addl (%1, %6, 1), %0\n"
+      "addl (%4), %0\n"
+      "addl (%4, %2, 1), %0\n"
+      "addl (%4, %2, 2), %0\n"
+      "addl (%4, %3, 1), %0\n"
+      "addl (%4, %2, 4), %0\n"
+      "addl (%4, %5, 1), %0\n"
+      "addl (%4, %3, 2), %0\n"
+      "addl (%4, %6, 1), %0\n"
+      : "=&r"(sum)
+      : "r"(ptr), "r"(stride), "r"(stride3), "r"(tmp), "r" (stride5), "r"(stride7)
+      );
+  return sum;
+}
+
+static inline int large_walk_kernel(const char* ptr, int64_t stride, int nstride)
+{
+  int i, sum = 0;
+  int64_t stride3 = 3*stride;
+  int64_t stride5 = 5*stride;
+  int64_t stride7 = 7*stride;
+  __asm__ (".align 16");
+  /*
+   *  If we have register pressure here, consider use 4-way unrolling rather
+   *  than 7. It's OK on x86_64
+   */
+  for(i = 0; i <= nstride - 8; i += 8, ptr += 8 * stride) {
+    __asm__ __volatile(
+        "addl (%1), %0\n"
+        "addl (%1,%2,1), %0\n"
+        "addl (%1,%2,2), %0\n"
+        "addl (%1,%3,1), %0\n"
+        "addl (%1,%2,4), %0\n"
+        "addl (%1,%4,1), %0\n"
+        "addl (%1,%3,2), %0\n"
+        "addl (%1,%5,1), %0\n"
+        : "=&r"(sum)
+        : "r"(ptr), "r"(stride), "r"(stride3), "r"(stride5), "r"(stride7)
+        );
+  }
+  __asm__ (".align 16");
+  switch (stride - i) {
+    case 7: sum += *(int*)(ptr + 7 * stride);
+    case 6: sum += *(int*)(ptr + 6 * stride);
+    case 5: sum += *(int*)(ptr + 5 * stride);
+    case 4: sum += *(int*)(ptr + 4 * stride);
+    case 3: sum += *(int*)(ptr + 3 * stride);
+    case 2: sum += *(int*)(ptr + 2 * stride);
+    case 1: sum += *(int*)(ptr + 1 * stride);
   }
   return sum;
 }
 
+int large_walk(const char* ptr, int64_t stride, int loop, int nway)
+{
+  int i = 0, sum = 0;
+  nway *= 2;
+  for (i = 0; i < loop; i++) {
+    sum += large_walk_kernel(ptr, stride, nway);
+  }
+  return sum;
+
+}
+
+static int null_func(const char* ptr, int64_t stride, int loop)
+{
+  return -1;
+}
+
+static int small_walk_1(const char* ptr, int64_t stride, int loop)
+{
+  int i, sum = 0;
+  /*
+   *  Reason to divide 2 is because we manually unroll the loop for 2 degree
+   */
+  for (i = 0, loop /= 2; i < loop; i++)
+    sum += small_walk_kernel_1(ptr, stride);
+  return sum;
+}
+
+#undef COMPOSE_NAME
+#define COMPOSE_NAME(x,y) x ## _ ## y
+#define SMALL_WALK(suffix) \
+  static int COMPOSE_NAME(small_walk, suffix) (const char* ptr, int64_t stride, int loop) {\
+    int i, sum = 0;\
+    for (i = 0; i < loop; i++) {\
+      sum += COMPOSE_NAME(small_walk_kernel, suffix)(ptr, stride);\
+    }\
+    return sum;\
+  }\
+
+SMALL_WALK(2)
+SMALL_WALK(3)
+SMALL_WALK(4)
+SMALL_WALK(5)
+SMALL_WALK(6)
+SMALL_WALK(7)
+SMALL_WALK(8)
+#define SMALL_WALK_NAME(n)\
+  COMPOSE_NAME(small_walk, n)
 /*
  *  We just create small walk function for 2, 4, 8, 16, 32 way thrashing
  */
 static SmallWalkFunc small_walk_funcs[9] = {
-  NULL,
-  NULL,
-  walk2,
-  walk3,
-  walk4,
-  walk5,
-  walk6,
-  walk7,
-  walk8
+  null_func,
+  SMALL_WALK_NAME(1),
+  SMALL_WALK_NAME(2),
+  SMALL_WALK_NAME(3),
+  SMALL_WALK_NAME(4),
+  SMALL_WALK_NAME(5),
+  SMALL_WALK_NAME(6),
+  SMALL_WALK_NAME(7),
+  SMALL_WALK_NAME(8)
 };
 
+#undef COMPOSE_NAME
 
-int small_walk(char* ptr, int stride, int loop, int n)
+/*
+ *  Walk is a special case of period_walk where its period is always 0
+ */
+int walk(const char* ptr, int stride, int loop, int n)
 {
-  if (n < 2) return -1;
-  if (n > 8) return large_walk_func(ptr, stride, loop);
-  return small_walk_funcs[n](ptr, stride, loop);
+  if (n <= 8) return small_walk_funcs[n](ptr, (int64_t) stride, loop);
+  return large_walk(ptr, (int64_t) stride, loop, n);
+}
+
+static int null_period_func(const char* ptr, int loop,
+    int nperiod, int period, int64_t stride)
+{
+  return -1;
+}
+
+static int small_period_walk_1(const char* ptr, int loop, int nperiod, int period, int64_t stride)
+{
+  int i, j, sum = 0;
+  const char* tmp = ptr;
+  for (i = 0, loop /= 2; i < loop; i++) {
+    ptr = tmp;
+    /*
+     *  If the inner loop is too small, shall we consider unroll more? Do
+     *  we need soft pipeline?
+     */
+    for (j = 0; j < nperiod; j++, ptr += period)
+      sum += small_walk_kernel_1(ptr, stride);
+  }
+  return sum;
+}
+
+#undef COMPOSE_NAME
+#define COMPOSE_NAME(x,y) x ## _ ## y
+#define SMALL_PERIOD_WALK(suffix) \
+  static int COMPOSE_NAME(small_period_walk, suffix) (const char* ptr, int loop, int nperiod, int period, int64_t stride) {\
+    int i, j, sum = 0;\
+    const char* tmp = ptr;\
+    for (i = 0; i < loop; i++) {\
+      ptr = tmp;\
+      for (j = 0; j < nperiod; j++, ptr += period)\
+        sum += COMPOSE_NAME(small_walk_kernel, suffix)(ptr, stride);\
+    }\
+    return sum;\
+  }\
+\
+
+#define SMALL_PERIOD_WALK_NAME(n)\
+  COMPOSE_NAME(small_period_walk, n)
+
+SMALL_PERIOD_WALK(2)
+SMALL_PERIOD_WALK(3)
+SMALL_PERIOD_WALK(4)
+SMALL_PERIOD_WALK(5)
+SMALL_PERIOD_WALK(6)
+SMALL_PERIOD_WALK(7)
+SMALL_PERIOD_WALK(8)
+
+typedef int (*SmallPeriodWalkFunc) (const char* ptr, int loop, int nperiod,
+    int period, int64_t stride);
+
+
+static SmallPeriodWalkFunc small_period_walk_funcs[9] = {
+  null_period_func,
+  SMALL_PERIOD_WALK_NAME(1),
+  SMALL_PERIOD_WALK_NAME(2),
+  SMALL_PERIOD_WALK_NAME(3),
+  SMALL_PERIOD_WALK_NAME(4),
+  SMALL_PERIOD_WALK_NAME(5),
+  SMALL_PERIOD_WALK_NAME(6),
+  SMALL_PERIOD_WALK_NAME(7),
+  SMALL_PERIOD_WALK_NAME(8),
+};
+
+#undef COMPOSE_NAME
+
+static int large_period_walk(const char* ptr, int loop, int nperiod, int period,
+    int nstride, int stride)
+{
+  int i, j, sum = 0;
+  const char* tmp = ptr;
+  for (i = 0; i < loop; i++) {
+    ptr = tmp;
+    for (j = 0; j < nperiod; j++, ptr += period)
+      sum += large_walk_kernel(ptr, stride, nstride);
+  }
+}
+
+/*
+ *  period_walk is a more general interface for walking memory. User will do
+ *  period walk for loop times. During each period walk, nperiod of stride
+ *  walk will happen, at ptr, ptr + period, ptr + 2 * period, ... place.
+ *  Each stride walk will walk on ptr + j*period + k*stride memory place.
+ *
+ *  For user to understand, it will be 
+ *
+ *  for (i = 0; i < loop; i++) {
+ *    push ptr;
+ *    for (j = 0; j < nperiod; j++, ptr += period)
+ *      for (k = 0; k < nstride * 2; k++)
+ *        visit ptr + k * stride
+ *    pop ptr
+ *  }
+ *
+ *  Here the reason for nstride * 2 is for compitablility to walk interface
+ *  written before. Refactoring is of huge price. May be we just divide nstride
+ *  by 2 will work, but this will eleminate use of nstride = 1
+ */
+int period_walk(const char* ptr, int loop, int nperiod, int period,
+    int nstride, int stride)
+{
+  if (nstride <= 8) return small_period_walk_funcs[nstride](ptr, loop, nperiod, period, (int64_t) stride);
+  return large_period_walk(ptr, loop, nperiod, period, nstride, stride);
 }
 
 
