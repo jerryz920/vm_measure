@@ -201,8 +201,18 @@ int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_str
 /***********************************************************************
  *  Misc
  ***********************************************************************/
+#define ALIGN_PTR(ptr, size) (typeof(ptr)) ((uint64_t)((((char*) ptr) + size - 1)) & (~(uint64_t)size))
+
+
 uint8_t number_to_power(uint64_t num);
 uint64_t power_to_number(uint8_t power);
 void fake_use(void* ptr);
+
+static inline int min(int x, int y)
+{
+  return x < y? x: y;
+}
+
+
 
 #endif

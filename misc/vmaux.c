@@ -111,7 +111,7 @@ static int my_desc_key_cnt;
 
 
 static void init_memory_descs() __attribute__((constructor));
-static void init_cpu_descs() __attribute__((constructor));
+//static void init_cpu_descs() __attribute__((constructor));
 
 
 /***********************************************************************
@@ -510,7 +510,7 @@ char* alloc_pages(int cnt, int size)
   /*
    *  It's not necessary to allocate pages with mmap, if it's large enough
    */
-  char* ptr = malloc(cnt * size);
+  char* ptr = malloc((cnt + 1) * size);
   if (ptr)
     memset(ptr, -1, cnt * size);
   return ptr;
@@ -586,13 +586,13 @@ static int plain_walk(const char* ptr, int nstride, int stride)
    *  Might ruin the order a little, but does not matter
    */
   switch(nstride - i) {
-    case 7: sum += *(ptr + 7 * stride);
-    case 6: sum += *(ptr + 6 * stride);
-    case 5: sum += *(ptr + 5 * stride);
-    case 4: sum += *(ptr + 4 * stride);
-    case 3: sum += *(ptr + 3 * stride);
-    case 2: sum += *(ptr + 2 * stride);
-    case 1: sum += *(ptr + 1 * stride);
+    case 7: sum += *(ptr + 6 * stride);
+    case 6: sum += *(ptr + 5 * stride);
+    case 5: sum += *(ptr + 4 * stride);
+    case 4: sum += *(ptr + 3 * stride);
+    case 3: sum += *(ptr + 2 * stride);
+    case 2: sum += *(ptr + 1 * stride);
+    case 1: sum += *(ptr + 0 * stride);
   }
   return sum;
 }
@@ -606,6 +606,10 @@ static inline int small_walk_kernel_1(const char* ptr, int64_t stride)
 {
   int sum = 0;
   __asm__ __volatile__(
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
+      "addl (%1), %0\n"
+      "addl (%1, %2, 1), %0\n"
       "addl (%1), %0\n"
       "addl (%1, %2, 1), %0\n"
       "addl (%1), %0\n"
@@ -743,7 +747,7 @@ static inline int small_walk_kernel_7(const char* ptr, int64_t stride)
   return sum;
 }
 
-static inline int small_walk_kernel_8(const char* ptr, int64_t stride)
+static int small_walk_kernel_8(const char* ptr, int64_t stride)
 {
   int sum = 0;
   int64_t stride3 = 3 * stride;
@@ -773,13 +777,16 @@ static inline int small_walk_kernel_8(const char* ptr, int64_t stride)
   return sum;
 }
 
-static inline int large_walk_kernel(const char* ptr, int64_t stride, int nstride)
+/*
+ *  Don't inline this function
+ */
+int large_walk_kernel(const char* ptr, int64_t stride, int nstride)
 {
   int i, sum = 0;
   int64_t stride3 = 3*stride;
   int64_t stride5 = 5*stride;
   int64_t stride7 = 7*stride;
-  __asm__ (".align 16");
+  __asm__ (".align 8");
   /*
    *  If we have register pressure here, consider use 4-way unrolling rather
    *  than 7. It's OK on x86_64
@@ -798,15 +805,15 @@ static inline int large_walk_kernel(const char* ptr, int64_t stride, int nstride
         : "r"(ptr), "r"(stride), "r"(stride3), "r"(stride5), "r"(stride7)
         );
   }
-  __asm__ (".align 16");
+  __asm__ (".align 8");
   switch (stride - i) {
-    case 7: sum += *(int*)(ptr + 7 * stride);
-    case 6: sum += *(int*)(ptr + 6 * stride);
-    case 5: sum += *(int*)(ptr + 5 * stride);
-    case 4: sum += *(int*)(ptr + 4 * stride);
-    case 3: sum += *(int*)(ptr + 3 * stride);
-    case 2: sum += *(int*)(ptr + 2 * stride);
-    case 1: sum += *(int*)(ptr + 1 * stride);
+    case 7: sum += *(int*)(ptr + 6 * stride);
+    case 6: sum += *(int*)(ptr + 5 * stride);
+    case 5: sum += *(int*)(ptr + 4 * stride);
+    case 4: sum += *(int*)(ptr + 3 * stride);
+    case 3: sum += *(int*)(ptr + 2 * stride);
+    case 2: sum += *(int*)(ptr + 1 * stride);
+    case 1: sum += *(int*)(ptr + 0 * stride);
   }
   return sum;
 }
@@ -833,7 +840,7 @@ static int small_walk_1(const char* ptr, int64_t stride, int loop)
   /*
    *  Reason to divide 2 is because we manually unroll the loop for 2 degree
    */
-  for (i = 0, loop /= 2; i < loop; i++)
+  for (i = 0, loop /= 4; i < loop; i++)
     sum += small_walk_kernel_1(ptr, stride);
   return sum;
 }
@@ -880,7 +887,7 @@ static SmallWalkFunc small_walk_funcs[9] = {
  */
 int walk(const char* ptr, int stride, int loop, int n)
 {
-  if (n <= 8) return small_walk_funcs[n](ptr, (int64_t) stride, loop);
+  if (n < 8) return small_walk_funcs[n](ptr, (int64_t) stride, loop);
   return large_walk(ptr, (int64_t) stride, loop, n);
 }
 
@@ -894,7 +901,7 @@ static int small_period_walk_1(const char* ptr, int loop, int nperiod, int perio
 {
   int i, j, sum = 0;
   const char* tmp = ptr;
-  for (i = 0, loop /= 2; i < loop; i++) {
+  for (i = 0, loop /= 4; i < loop; i++) {
     ptr = tmp;
     /*
      *  If the inner loop is too small, shall we consider unroll more? Do
@@ -915,7 +922,7 @@ static int small_period_walk_1(const char* ptr, int loop, int nperiod, int perio
     for (i = 0; i < loop; i++) {\
       ptr = tmp;\
       for (j = 0; j < nperiod; j++, ptr += period)\
-        sum += COMPOSE_NAME(small_walk_kernel, suffix)(ptr, stride);\
+      sum += COMPOSE_NAME(small_walk_kernel, suffix)(ptr, stride);\
     }\
     return sum;\
   }\
@@ -955,11 +962,13 @@ static int large_period_walk(const char* ptr, int loop, int nperiod, int period,
 {
   int i, j, sum = 0;
   const char* tmp = ptr;
+  nstride *= 2;
   for (i = 0; i < loop; i++) {
     ptr = tmp;
     for (j = 0; j < nperiod; j++, ptr += period)
       sum += large_walk_kernel(ptr, stride, nstride);
   }
+  return sum;
 }
 
 /*
@@ -989,6 +998,9 @@ int period_walk(const char* ptr, int loop, int nperiod, int period,
   return large_period_walk(ptr, loop, nperiod, period, nstride, stride);
 }
 
+{
+}
+
 
 /*
  *  Group walk is simple, just walk with stride 0 inside each group, and start
@@ -1011,8 +1023,69 @@ int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_str
       }
     }
   }
+/*
+}
+
+/*
+ *  Touch a set of pages with one cache line, and then use static linked list style to
+ *  visit the address, thus we can avoid the out-of-order execution so avoid the
+ *  timing difference.
+ */
+int page_walk_setup(char* ptr, int nperiod, int period, int nstride, int stride, int tail_stride) 
+{
+
+  int i, j;
+  for (i = 0; i < nperiod; i++, ptr += period) {
+    char* cur = ptr;
+    for (j = 0; j < nstride; j++, cur += stride) {
+      *(void**)cur = (void*) (cur + stride);
+    }
+    *(void**)(cur - stride) = (void*) (ptr + period);
+  }
+  *(void**)(ptr - period) = ptr;
+  for (j = 0; j < tail_stride; j++, ptr += stride) {
+    *(void**)ptr = (void*) (ptr + stride);
+  }
+  *(void**)(ptr - stride) = 0x0;
+}
+
+static int do_linked_page_walk(char* pages, int npages)
+{
+  int i;
+  void* visit_ptr = *(void**)pages;
+  for (i = 0; i <= npages - 8; i += 8) {
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+    visit_ptr = *(void**)visit_ptr;
+  }
+
+  switch(npages - i) {
+    case 7: visit_ptr = *(void**)visit_ptr;
+    case 6: visit_ptr = *(void**)visit_ptr;
+    case 5: visit_ptr = *(void**)visit_ptr;
+    case 4: visit_ptr = *(void**)visit_ptr;
+    case 3: visit_ptr = *(void**)visit_ptr;
+    case 2: visit_ptr = *(void**)visit_ptr;
+    case 1: visit_ptr = *(void**)visit_ptr;
+  }
+  return (int)visit_ptr;
+}
+
+int linked_page_walk(char* page, int loop, int npages)
+{
+  int i, sum = 0;
+  for (i = 0; i < loop; i++) {
+    sum += do_linked_page_walk(page, npages);
+  }
   return sum;
 }
+
+
 
 /***********************************************************************
  *              Misc
@@ -1046,4 +1119,57 @@ uint64_t power_to_number(uint8_t power)
     return 0;
   else
     return ((uint64_t)1) << power;
+}
+
+
+static int run1(char* p, int n)
+{
+  struct timeval begin, end;
+
+  int sum = walk(p, 4096 + 64, 20 , n / 2);
+  gettimeofday(&begin, NULL);
+  int loop = 160000000 / n;
+  sum += walk(p, 4096 + 64, loop, n / 2);
+  gettimeofday(&end, NULL);
+  double tmp = (end.tv_usec - begin.tv_usec + (end.tv_sec - begin.tv_sec) * 1E6 ) /
+    loop * 1000 / n;
+  printf("%d %.8f\n", n, tmp);
+  return sum;
+}
+
+int run2(char* p, int n)
+{
+  struct timeval begin, end;
+
+  int sum = period_walk(p, 20, n / 64, 64 * 4096, 32, 4096 + 64);
+  gettimeofday(&begin, NULL);
+  int loop = 160000000 / n;
+  sum += period_walk(p, loop, n / 64, 64 * 4096, 32, 4096 + 64);
+  gettimeofday(&end, NULL);
+  double tmp = (end.tv_usec - begin.tv_usec + (end.tv_sec - begin.tv_sec) * 1E6 ) /
+    loop * 1000 / n;
+  printf("%d %.8f\n", n, tmp);
+  return sum;
+}
+
+static int64_t align(int64_t ptr, int align)
+{
+  return (ptr + align - 1) & (~align);
+}
+
+int main(int argc, char** argv)
+{
+  int sum = rand();
+  char* ptr = malloc(40960 * 4096);
+  char* p = align(ptr, 4096);
+  memset(ptr, 0x5, 40960 * 4096);
+  sum += run1(p, 2);
+  sum += run1(p, 4);
+  sum += run1(p, 8);
+  sum += run1(p, 32);
+  sum += run1(p, 64);
+  sum += run2(p, 128);
+  //sum += run2(p, 256);
+  printf("%d\n", sum);
+  return 0;
 }

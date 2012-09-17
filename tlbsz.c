@@ -75,6 +75,8 @@ static int do_mem_walk(struct MemWalkCb* cb, double* timep)
     sum += period_walk(cb->ptr, 1, cb->nperiod, cb->period, cb->nstride, 
         cb->stride);
     uint64_t begin = get_usec();
+    DEBUG("%p %d %d %d %d %d\n", cb->ptr, cb->loop, cb->nperiod, cb->period, cb->nstride, 
+        cb->stride);
     sum += period_walk(cb->ptr, cb->loop, cb->nperiod, cb->period, cb->nstride, 
         cb->stride);
     uint64_t end = get_usec();
@@ -191,26 +193,6 @@ static void measure_cache_info()
   printf("#useless sum %d\n", sum);
 }
 
-
-/*
- * return the page count used. For each of the page, we will future visit only 1 cache line
- * inside. We use bit count to describe size.
- *
- * When we force it to miss, then we should walk (uncontrollable_set + 1) * (way + 1) cache line
- */
-static int uncontrollable_set(int cache_size, int way, int page_size, int cache_line)
-{
-  /*
-   *  Cache line per way also means the number of associative set
-   */
-  int total_ass_set = cache_size - number_to_power(way) - cache_line;
-  int page_ass_set = page_size - cache_line;
-  if (total_ass_set < page_ass_set)
-    return 0;
-  else
-    return power_to_number((total_ass_set - page_ass_set) - 1);
-}
-
 /*
  *  Measure the TLB size, unit is KB
  *
@@ -283,13 +265,12 @@ static int tlb_walk(char* pages, int walk_page_cnt, int page_size, int usable_se
   if (walk_page_cnt > usable_set) {
     nperiod = walk_page_cnt / usable_set;
     period = usable_set * page_size;
-    nstride = usable_set;
+    nstride = usable_set / 2;
   } else {
     nperiod = 1;
     period = 0;
-    nstride = walk_page_cnt;
+    nstride = walk_page_cnt / 2;
   }
-
   init_mem_walk_cb_period(&cb, pages, loop, nperiod, period, nstride, stride);
   int sum = do_mem_walk(&cb, timep);
   printf("%d %.5f\n", walk_page_cnt, *timep);
@@ -314,12 +295,11 @@ static int do_measure_tlb1(int mem_total, int prev_tlb, char* base_page, struct 
   /*
    *  This will only consume about 512 pages in total
    */
-  for (test_page = prev_tlb? 1: prev_tlb; test_page < max_page_to_test; test_page *= 2) {
-    int loop = mem_total / test_page / page_size;
+  for (test_page = prev_tlb? prev_tlb: 2; test_page <= max_page_to_test; test_page *= 2) {
+    int loop = mem_total / test_page ;
     sum += tlb_walk(base_page, test_page, page_size, usable_set, page_size + CACHE_LINE, loop, &time_curr) ;
     if (time_prev > 0 && time_curr > time_prev * 1.25) {
       tlb->size = test_page; /*we are walking over two * test_page in fact*/
-      break;
     }
     time_prev = time_curr;
   }
@@ -370,7 +350,7 @@ static int do_probe_pages(struct PageGroup* mark_list, int probe_line, int minim
   double time_curr = 0;
 
   int sum = 0, i;
-  char* base_page = alloc_pages(maximum_set, page_size);
+  char* base_page = alloc_pages(maximum_set + 1, page_size);
 
   for (i = minimum_set / 2; i <= maximum_set; i++) {
     int loop = TOTAL_MEM_SMALL / i;
@@ -378,7 +358,7 @@ static int do_probe_pages(struct PageGroup* mark_list, int probe_line, int minim
      *  Walk with stride = page_size, nstride = i
      */
     struct MemWalkCb cb;
-    init_mem_walk_cb(&cb, base_page, i * page_size, page_size, loop);
+    init_mem_walk_cb(&cb, ALIGN_PTR(base_page, page_size), i * page_size, page_size, loop);
     sum += do_mem_walk(&cb, &time_curr);
     if (time_prev > 0 && time_curr > time_prev * 1.25) {
       mark_list[probe_line].start = base_page;
@@ -388,6 +368,7 @@ static int do_probe_pages(struct PageGroup* mark_list, int probe_line, int minim
     }
   }
   fake_ref(&sum);
+  free(base_page);
   if (i > maximum_set) return -1;
   return i * 2 - 1;
 }
@@ -423,9 +404,9 @@ static int tlb_page_probe2(int total_mem, struct TLBDesc* tlb, int page_size)
   /*
    *  Allocate a page for storing the probing sequence
    */
-  char* data_page = alloc_pages(1, page_size);
-  memset(data_page, 0, page_size);
-  struct PageGroup* mark_list = (struct PageGroup*) (data_page + page_size / 2);
+  char* data_page = alloc_pages(2, page_size);
+  memset(data_page, 0, page_size * 2);
+  struct PageGroup* mark_list = (struct PageGroup*) (ALIGN_PTR(data_page, page_size) + page_size / 2);
 
   int l1_way = measured_cache_info[1].size / measured_cache_info[1].group_size / CACHE_LINE;
   int l2_way = measured_cache_info[2].size / measured_cache_info[2].group_size / CACHE_LINE;
@@ -476,30 +457,34 @@ static int tlb_page_probe2(int total_mem, struct TLBDesc* tlb, int page_size)
 static int measure_tlb()
 {
   char* pages = alloc_pages(TOTAL_MEM_LARGE / PAGE_SIZE, PAGE_SIZE);
-  int sum = do_measure_tlb1(TOTAL_MEM_LARGE, 0, pages, &measured_tlb_info[1], PAGE_SIZE);
+  int sum = do_measure_tlb1(TOTAL_MEM_SMALL, 0, ALIGN_PTR(pages, PAGE_SIZE), &measured_tlb_info[1], PAGE_SIZE);
   free(pages);
-  struct HugePage* hpgs = alloc_huge_pages(TOTAL_MEM_LARGE / HUGE_PAGE_SIZE, HUGE_PAGE_SIZE);
-  sum += do_measure_tlb1(TOTAL_MEM_LARGE, 0, hpgs->addr, &measured_huge_tlb_info[1], HUGE_PAGE_SIZE);
-  free_huge_page(hpgs);
-
-  pages = alloc_pages(TOTAL_MEM_LARGE / PAGE_SIZE, PAGE_SIZE);
-  sum += do_measure_tlb1(TOTAL_MEM_LARGE, measured_tlb_info[1].size, pages, &measured_tlb_info[2], 
-      PAGE_SIZE);
-  if (measured_tlb_info[2].size == -1)
-    sum = do_measure_tlb2(TOTAL_MEM_LARGE, pages, &measured_tlb_info[2], PAGE_SIZE);
-  free(pages);
-
-  if (measured_tlb_info[2].size == -1)
-    sum = tlb_page_probe2(TOTAL_MEM_LARGE, &measured_tlb_info[2], PAGE_SIZE);
+//  struct HugePage* hpgs = alloc_huge_pages(TOTAL_MEM_LARGE / HUGE_PAGE_SIZE, HUGE_PAGE_SIZE);
+//  sum += do_measure_tlb1(TOTAL_MEM_LARGE, 0, hpgs->addr, &measured_huge_tlb_info[1], HUGE_PAGE_SIZE);
+//  free_huge_page(hpgs);
+//
+//  pages = alloc_pages(TOTAL_MEM_LARGE / PAGE_SIZE, PAGE_SIZE);
+//  sum += do_measure_tlb1(TOTAL_MEM_LARGE, measured_tlb_info[1].size, pages, &measured_tlb_info[2], 
+//      PAGE_SIZE);
+//  if (measured_tlb_info[2].size == -1)
+//    sum = do_measure_tlb2(TOTAL_MEM_LARGE, pages, &measured_tlb_info[2], PAGE_SIZE);
+//  free(pages);
+//
+//  if (measured_tlb_info[2].size == -1)
+//    sum = tlb_page_probe2(TOTAL_MEM_LARGE, &measured_tlb_info[2], PAGE_SIZE);
+//
+  printf("measured size: %d %d\n", measured_tlb_info[1].size, measured_tlb_info[2].size);
   return sum;
 }
-
-
 
 
 int main()
 {
   set_thread_cpu(0);
   measure_cache_info();
+//  measured_cache_info[1].size = 32 * 1024;
+//  measured_cache_info[1].group_size = 64;
+
+  printf("useless sum %d\n", measure_tlb());
   return 0;
 }
