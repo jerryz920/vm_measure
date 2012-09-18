@@ -1,0 +1,51 @@
+\documentclass{sig-alternate}
+
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{color}
+\usepackage{comment}
+\usepackage{multirow}
+\usepackage{booktabs}
+
+\newcommand{\cm}{\textcolor{magenta}}
+\newcommand{\cb}{\textcolor{blue}}
+\newcommand{\cred}{\textcolor{red}}
+\newcommand{\cg}{\textcolor{green}}
+
+\begin{document}
+
+\hypersetup
+{
+    pdfauthor={Yan Zhai},
+    pdfsubject={CS736},
+    pdftitle={Measruing the Linux Virtual Memory Subsystem},
+    pdfkeywords={Measuring, Virtual Memory, TLB, Page}
+}
+
+\title{Measruing the Linux Virtual Memory Subsystem}
+
+\author{
+    \alignauthor Yan Zhai\\
+        \affaddr{Department of Computer Science and Technology,
+            University of Wisconsin Madison}\\
+        \email{\{zhaiyan920\}@gmail.com}
+}
+
+\maketitle
+
+\input{abstract}
+\input{intro}
+\input{timing}
+\input{tlb}
+\input{alloc}
+%\input{hugepage}
+%\input{sharedobj}
+%\input{conclusion}
+
+\bibliographystyle{abbrv}
+\bibliography{vm}
+
+\end{document}

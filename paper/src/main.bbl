@@ -1,0 +1,13 @@
+\begin{thebibliography}{1}
+
+\bibitem{c10k}
+{C10K problem}.
+\newblock http://www.kegel.com/c10k.html.
+
+\bibitem{sigmetrics:cache}
+K.~Yotov, K.~Pingali, and P.~Stodghill.
+\newblock Automatic measurement of memory hierarchy parameters.
+\newblock In {\em ACM SIGMETRICS Performance Evaluation Review}, volume~33,
+  pages 181--192. ACM, 2005.
+
+\end{thebibliography}

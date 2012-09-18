@@ -1,0 +1,54 @@
+\section{Introduction}
+    \label{sec:intro}
+    %PVFS\cite{bib:pvfs}, and Lustre~\cite{lustre}.  For a selected parallel
+    %\begin{itemize} 
+    %    \item 
+    %    \item 
+    %    \item 
+    %\end{itemize}
+	
+The virtual memory subsystem has become an indispensable constitution in modern
+operating systems. With the proper hardware support in paging and segmentation,
+operating systems build their own mechanisms to protection and abstractions to
+users. This greatly simplifies the price to write correct code, and also make
+the operating system more reliable to the user faults.
+
+However, writing correct code is not equal to writing good code. The
+applications may not perform well without knowing underlying operating systems
+and hardware. For example, designing a good web server will often require good
+knowledge of how to maximize the usage of memory and avoid long latency from
+disks~\cite{c10k}. Thus, it would be quite attractive to reveal what is beneath
+the beautiful illusory operating systems provide with you.
+
+The virtual memory subsystem is quite huge, we mainly focus on several topics:
+\begin{itemize}
+\item TLB(Translation Lookaside Buffer), the 'cache' of the virtual memory. It
+will be necessary to know how the TLB are working, how large it is. We try to
+measure the TLB size through a set of experimentations, in order to know more
+deep about this small buffer.
+\item Huge Pages. To avoid TLB missing, huge pages can serve quite good for
+this purpose. But while it has many benefits to use huge pages, what is the
+cost? In this paper, I try to illustrate the cost of huge pages with the 
+performance cost in page preparation, allocation aspects.
+\item Memory Allocator, like \emph{malloc}, \emph{mmap}. The only thing users
+can see is these allocators will allocate the virtual pages when invoked. However,
+when can user really uses this page? What is the allocation policy of the physical
+pages? These are all interesting questions to answer.
+\item Optimization of Virtual Memory System. There are many optimization for the 
+virtual memory, like better page replacement algorithm, prefetching, and so on. In
+this paper, I explored the benefits from the object sharing.
+\end{itemize}
+
+To flexibly employ all kinds of measurement strategies, we choose Linux as our
+major experiment environment. Four major experiments, and several minor ones
+are carried out toward above topics, and most of them run well, matching my
+understanding to the architecture and system. One thing that causes trouble is
+the TLB. The measurement of TLB is not quite accurate, and I will explain the
+reasons with the gathered timing and hardware events data.
+
+The paper is organized in following way: section~\ref{sec:timing} will
+introduce the environment, including time function I used, and some
+configuration details. section 3 is measuring different level TLB sizes.
+section 4 describes how we measure the memory allocator. section 5 will test
+the huge page overhead, section 6 illustrates the benefits from shared objects.
+
