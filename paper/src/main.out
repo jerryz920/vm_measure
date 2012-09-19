@@ -9,4 +9,20 @@
 \BOOKMARK [2][-]{subsection.3.2}{Implementation}{section.3}% 9
 \BOOKMARK [2][-]{subsection.3.3}{Experiment Results}{section.3}% 10
 \BOOKMARK [2][-]{subsection.3.4}{Discussion}{section.3}% 11
-\BOOKMARK [1][-]{section.4}{References}{}% 12
+\BOOKMARK [1][-]{section.4}{Memory Allocator}{}% 12
+\BOOKMARK [2][-]{subsection.4.1}{Methodology}{section.4}% 13
+\BOOKMARK [2][-]{subsection.4.2}{Experiments}{section.4}% 14
+\BOOKMARK [2][-]{subsection.4.3}{Discussion}{section.4}% 15
+\BOOKMARK [1][-]{section.5}{Huge Pages}{}% 16
+\BOOKMARK [2][-]{subsection.5.1}{Methodology}{section.5}% 17
+\BOOKMARK [2][-]{subsection.5.2}{Experiments}{section.5}% 18
+\BOOKMARK [2][-]{subsection.5.3}{Discussion}{section.5}% 19
+\BOOKMARK [1][-]{section.6}{Virtual Memory Optimization: Shared Objects}{}% 20
+\BOOKMARK [2][-]{subsection.6.1}{Methodology}{section.6}% 21
+\BOOKMARK [2][-]{subsection.6.2}{Experiments}{section.6}% 22
+\BOOKMARK [3][-]{subsubsection.6.2.1}{Code Size}{subsection.6.2}% 23
+\BOOKMARK [3][-]{subsubsection.6.2.2}{Performance Difference in Real Webserver}{subsection.6.2}% 24
+\BOOKMARK [2][-]{subsection.6.3}{Discussion}{section.6}% 25
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 26
+\BOOKMARK [1][-]{section.8}{Acknowledgement}{}% 27
+\BOOKMARK [1][-]{section.9}{References}{}% 28

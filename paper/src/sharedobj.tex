@@ -1,0 +1,44 @@
+\section{Shared Code Page}
+	\label{sec:sharedobj}
+Shared code pages is an important optimization to the virtual memory. Shared code
+usually appear as shared library or dynamic linking library in the system.
+With shared library, code size are largely reduced.  Moreover, the shared
+library is usually place independent and can be dynamically loaded by the
+applications.  This enables great flexibility in design. For instance,
+apache~\cite{apache} uses dynamic libraries to implement its modules, which can
+be loaded on demand and built separately. In this section I compare the typical
+applications' code size by linked them statically and dynamically. In addition,
+I will present a simple web testing on the apache server compiled statically
+and dynamically, to see if there is a performance difference.
+
+\subsection{Methodology}
+It's quite straightforward to measure the code size. I compiled
+LLVM~\cite{llvm} and Apache~\cite{apache} to see the code size difference for
+shared library version and statically linked version.
+
+For web testing, I use the apachebench~\cite{apachebench} to fetch different
+size of static web pages, including synthetic pages and home pages of big
+sites. The MPM model I intentionally choose prefork model, since during
+forking, process's address space will be copied. The statically linked code,
+might have a little performance superior in external function call and
+variables access~\cite{linker}. But when fork executes frequently, the code
+size then destroy the tiny benefits.
+
+\subsection{Experiments}
+\subsubsection{Code Size}
+
+\subsubsection{Performance Difference in Real Webserver}
+
+
+
+\subsection{Discussion}
+Originally I would like to compile firefox~\cite{firefox} to see the code size
+change. But after some attempts I found they do not support static linking in their
+build scripts so I moved to LLVM.
+
+Although shared objects are extensively used in current systems, it is not
+correct to say that static library is no longer required. Some problems 
+raised only in shared objects, like library dependency, and the binary 
+compatibility~\cite{dllhell}. Also, in scenario requires extreme good performance,
+like high performance scientific computing, static library would be their
+first choice.

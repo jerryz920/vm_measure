@@ -4,46 +4,50 @@ The top-level auxiliary file: main.aux
 The style file: abbrv.bst
 Database file #1: vm.bib
 Warning--to sort, need author or key in c10k
+Warning--to sort, need author or key in apache
+Warning--to sort, need author or key in apachebench
+Warning--to sort, need author or key in firefox
+Warning--to sort, need author or key in dllhell
 Warning--can't use both volume and number fields in sigmetrics:cache
-You've used 2 entries,
+You've used 8 entries,
             2118 wiz_defined-function locations,
-            508 strings with 3919 characters,
-and the built_in function-call counts, 691 in all, are:
-= -- 70
-> -- 19
-< -- 2
-+ -- 8
-- -- 6
-* -- 43
-:= -- 97
-add.period$ -- 6
-call.type$ -- 2
-change.case$ -- 9
+            533 strings with 4453 characters,
+and the built_in function-call counts, 1992 in all, are:
+= -- 197
+> -- 43
+< -- 4
++ -- 20
+- -- 12
+* -- 97
+:= -- 266
+add.period$ -- 21
+call.type$ -- 8
+change.case$ -- 29
 chr.to.int$ -- 0
-cite$ -- 4
-duplicate$ -- 30
-empty$ -- 65
-format.name$ -- 6
-if$ -- 159
+cite$ -- 14
+duplicate$ -- 93
+empty$ -- 221
+format.name$ -- 12
+if$ -- 472
 int.to.chr$ -- 0
-int.to.str$ -- 2
-missing$ -- 1
-newline$ -- 12
-num.names$ -- 2
-pop$ -- 15
+int.to.str$ -- 8
+missing$ -- 4
+newline$ -- 38
+num.names$ -- 6
+pop$ -- 64
 preamble$ -- 1
-purify$ -- 7
+purify$ -- 22
 quote$ -- 0
-skip$ -- 27
+skip$ -- 81
 stack$ -- 0
-substring$ -- 42
-swap$ -- 14
-text.length$ -- 2
+substring$ -- 96
+swap$ -- 29
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 8
-warning$ -- 2
-while$ -- 5
-width$ -- 3
-write$ -- 22
-(There were 2 warnings)
+type$ -- 30
+warning$ -- 6
+while$ -- 12
+width$ -- 9
+write$ -- 73
+(There were 6 warnings)

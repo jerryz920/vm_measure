@@ -1,8 +1,36 @@
 \begin{thebibliography}{1}
 
+\bibitem{apachebench}
+{Apache Benchmark}.
+\newblock http://httpd.apache.org/docs/2.2/programs/ab.html.
+
+\bibitem{apache}
+{Apache Web Server}.
+\newblock http://httpd.apache.org.
+
 \bibitem{c10k}
 {C10K problem}.
 \newblock http://www.kegel.com/c10k.html.
+
+\bibitem{dllhell}
+{Dll hell problem}.
+\newblock http://en.wikipedia.org/wiki/DLL\textunderscore Hell.
+
+\bibitem{firefox}
+{Firefox}.
+\newblock www.mozilla.org/en-US/firefox/.
+
+\bibitem{llvm}
+C.~Lattner and V.~Adve.
+\newblock Llvm: A compilation framework for lifelong program analysis \&
+  transformation.
+\newblock In {\em Code Generation and Optimization, 2004. CGO 2004.
+  International Symposium on}, pages 75--86. IEEE, 2004.
+
+\bibitem{linker}
+J.~R.Levine.
+\newblock {\em {Linkers and Loaders}}, chapter Chapter 8: Loading and overlays.
+\newblock Morgan-Kauffman, 1999.
 
 \bibitem{sigmetrics:cache}
 K.~Yotov, K.~Pingali, and P.~Stodghill.

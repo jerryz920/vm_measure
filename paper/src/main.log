@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  18 SEP 2012 03:46
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  19 SEP 2012 05:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -466,34 +466,42 @@ s mea-sure-ment at ms level,
 x.map}
 
 
-])pdfTeX warning (ext4): destination with the same identifier (name{page.}) has
- been already used, duplicate ignored
+]) (./alloc.texpdfTeX warning (ext4): destination with the same identifier (nam
+e{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.47 
-      [2] (./main.bbl)
+l.1 \section
+            {Memory Allocator} [2]) (./hugepage.tex) (./sharedobj.tex
+Overfull \hbox (44.40836pt too wide) in paragraph at lines 1--1
+[]\secfnt VIRTUAL MEM-ORY OP-TI-MIZA-TION: SHARED
+ []
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
+een already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.14 \subsection{Methodology}
+                              [3]) (./conc.tex) (./main.bbl)
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 51.
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.51 \end{document}
-                    [3
-
-]
+                    [4]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 51.
  (./main.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 51.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 51.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: A57A94D688E6F1386B60361315DBFEB1;740.
+(rerunfilecheck)             Checksum: A5708997676A0538E590BFF8AF915E22;1729.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 51.
  ) 
 Here is how much of TeX's memory you used:
- 6591 strings out of 493488
- 92876 string characters out of 3141326
- 188786 words of memory out of 3000000
- 9764 multiletter control sequences out of 15000+200000
+ 6652 strings out of 493488
+ 93627 string characters out of 3141326
+ 189173 words of memory out of 3000000
+ 9791 multiletter control sequences out of 15000+200000
  45303 words of font info for 59 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
  41i,11n,29p,442b,321s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -508,10 +516,10 @@ xmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2012/texmf-dis
 t/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2012/texmf-dist/fonts
 /type1/urw/times/utmb8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/urw
 /times/utmri8a.pfb>
-Output written on main.pdf (3 pages, 120196 bytes).
+Output written on main.pdf (4 pages, 136089 bytes).
 PDF statistics:
- 119 PDF objects out of 1000 (max. 8388607)
- 102 compressed objects within 2 object streams
- 17 named destinations out of 1000 (max. 500000)
- 97 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 211 PDF objects out of 1000 (max. 8388607)
+ 193 compressed objects within 2 object streams
+ 39 named destinations out of 1000 (max. 500000)
+ 225 words of extra memory for PDF output out of 10000 (max. 10000000)
 
