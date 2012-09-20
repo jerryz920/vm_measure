@@ -19,6 +19,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/mman.h>
@@ -94,7 +96,7 @@ uint64_t get_nsec()
 {
   struct timespec t;
   clock_gettime(CLOCK_REALTIME, &t);
-  return t.tv_nsec = t.tv_sec * (uint64_t)1000000;
+  return t.tv_nsec + t.tv_sec * (uint64_t)1000000000;
 }
 
 /***********************************************************************
@@ -502,6 +504,144 @@ double cpu_freq(int cpu)
 /***********************************************************************
  *              Memory Manipulation Interface
  ***********************************************************************/
+
+struct MemStat {
+  int64_t total;
+  int64_t cached;
+  int64_t buffered;
+  int64_t unused;
+};
+
+/*
+ *  This is a linux specific call
+ * MemTotal:       16326584 kB
+ * MemFree:          802248 kB
+ * Buffers:          265836 kB
+ * Cached:         13831164 kB
+ */
+static int fetch_mem_stat(struct MemStat* stat)
+{
+  int fd = open("/proc/meminfo", O_RDONLY);
+  if (fd < 0) {
+    ERR("can not open /proc/meminfo\n");
+    perror("fetch_mem_stat");
+    return -1;
+  }
+  char local_buffer[4096];
+
+  if (read(fd, local_buffer, 4096) < 0) {
+    ERR("can not read /proc/meminfo!\n");
+    perror("read meminfo");
+    return -1;
+  }
+
+#define MEM_TOTAL_ID   "MemTotal:"
+#define MEM_FREE_ID    "MemFree:"
+#define MEM_BUFFER_ID  "Buffers:"
+#define MEM_CACHE_ID   "Cached:"
+
+  close(fd);
+  /*
+   *  Parse the four part from file
+   */
+  char* ptr = strstr(local_buffer, "\n"MEM_TOTAL_ID);
+  if (!ptr)
+    ptr = strstr(local_buffer, MEM_TOTAL_ID);
+  if (!ptr)
+    return -1;
+  sscanf(ptr + strlen(MEM_TOTAL_ID) + 1, "%"SCNd64, &stat->total);
+
+  ptr = strstr(local_buffer, "\n"MEM_FREE_ID);
+  if (!ptr)
+    ptr = strstr(local_buffer, MEM_FREE_ID);
+  if (!ptr)
+    return -1;
+  sscanf(ptr + strlen(MEM_FREE_ID) + 1, "%"SCNd64, &stat->unused);
+
+  ptr = strstr(local_buffer, "\n"MEM_CACHE_ID);
+  if (!ptr)
+    ptr = strstr(local_buffer, MEM_CACHE_ID);
+  if (!ptr)
+    return -1;
+  sscanf(ptr + strlen(MEM_CACHE_ID) + 1, "%"SCNd64, &stat->cached);
+
+  ptr = strstr(local_buffer, "\n"MEM_BUFFER_ID);
+  if (!ptr)
+    ptr = strstr(local_buffer, MEM_BUFFER_ID);
+  if (!ptr)
+    return -1;
+  sscanf(ptr + strlen(MEM_BUFFER_ID) + 1, "%"SCNd64, &stat->buffered);
+  stat->total *= 1024;
+  stat->cached *= 1024;
+  stat->buffered *= 1024;
+  stat->unused *= 1024;
+
+  return 0;
+}
+
+/*
+ *  evaluate how many bytes are left in system
+ */
+int64_t free_mem_count()
+{
+  struct MemStat stat;
+  if (fetch_mem_stat(&stat) < 0)
+    return -1;
+  return stat.buffered + stat.cached + stat.unused;
+}
+
+int64_t unused_mem_count()
+{
+  struct MemStat stat;
+  if (fetch_mem_stat(&stat) < 0)
+    return -1;
+  return stat.unused;
+}
+
+int64_t buffered_mem_count()
+{
+  struct MemStat stat;
+  if (fetch_mem_stat(&stat) < 0)
+    return -1;
+  return stat.buffered;
+}
+
+int64_t cached_mem_count()
+{
+  struct MemStat stat;
+  if (fetch_mem_stat(&stat) < 0)
+    return -1;
+  return stat.cached;
+}
+
+int64_t total_mem_count()
+{
+  struct MemStat stat;
+  if (fetch_mem_stat(&stat) < 0)
+    return -1;
+  return stat.total;
+}
+
+int64_t page_in_core(char* addr, int npage, int page_size)
+{
+  char data[4096];
+  int i, j, total = 0;
+  for (i = 0; i <= npage - 4096; i++) {
+    mincore(addr + i * page_size, 4096 * page_size, data);
+    for (j = 0; j < 4096; j++) {
+      if (data[j] & 1)
+        total++;
+    }
+  }
+  mincore(addr + i * page_size, (npage - i) * page_size, data);
+  for (j = 0; j < 4096; j++) {
+    if (data[j] & 1)
+      total++;
+  }
+  return total;
+}
+
+
 /*
  *  Allocate pages, aligned to the size boundary
  */
@@ -515,6 +655,31 @@ char* alloc_pages(int cnt, int size)
     memset(ptr, -1, cnt * size);
   return ptr;
 }
+
+/*
+ *  Allocate the raw pages without doing set
+ */
+char* alloc_raw_pages(int cnt, int size)
+{
+  /*
+   *  Don't touch the page since then allocator would not allocate the page right now.
+   */
+  int flag = MAP_SHARED | MAP_ANONYMOUS;
+  if (size == HUGE_PAGE_SIZE)
+    flag |= MAP_HUGETLB;
+  char* ptr = mmap(NULL, (int64_t) cnt * size, PROT_READ | PROT_WRITE, flag, -1, 0);
+  if (ptr == (char*) -1) {
+    perror("alloc_raw_pages");
+    return NULL;
+  }
+  return ptr;
+}
+
+void free_raw_pages(char* ptr, int cnt, int size)
+{
+  munmap(ptr, (int64_t) cnt * size);
+}
+
 
 /*
  *  Use shmget like routine to allocate huge pages
@@ -998,10 +1163,6 @@ int period_walk(const char* ptr, int loop, int nperiod, int period,
   return large_period_walk(ptr, loop, nperiod, period, nstride, stride);
 }
 
-{
-}
-
-
 /*
  *  Group walk is simple, just walk with stride 0 inside each group, and start
  *  next group from an address offset group_stride
@@ -1023,7 +1184,6 @@ int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_str
       }
     }
   }
-/*
 }
 
 /*
@@ -1033,31 +1193,29 @@ int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_str
  */
 int page_walk_setup(char* ptr, int nperiod, int period, int nstride, int stride, int tail_stride) 
 {
-
   int i, j;
   for (i = 0; i < nperiod; i++, ptr += period) {
     char* cur = ptr;
     for (j = 0; j < nstride; j++, cur += stride) {
       *(void**)cur = (void*) (cur + stride);
     }
-    *(void**)(cur - stride) = (void*) (ptr + period);
+    *(void**)(cur) = (void*) (ptr + period);
   }
-  *(void**)(ptr - period) = ptr;
   for (j = 0; j < tail_stride; j++, ptr += stride) {
     *(void**)ptr = (void*) (ptr + stride);
   }
-  *(void**)(ptr - stride) = 0x0;
+  *(void**)(ptr) = 0x0;
 }
 
 static int do_linked_page_walk(char* pages, int npages)
 {
   int i;
-  void* visit_ptr = *(void**)pages;
-  for (i = 0; i <= npages - 8; i += 8) {
-    visit_ptr = *(void**)visit_ptr;
-    visit_ptr = *(void**)visit_ptr;
-    visit_ptr = *(void**)visit_ptr;
-    visit_ptr = *(void**)visit_ptr;
+  void* visit_ptr = pages;
+  for (i = 0; i <= npages - 4; i += 4) {
+    //visit_ptr = *(void**)visit_ptr;
+    //visit_ptr = *(void**)visit_ptr;
+    //visit_ptr = *(void**)visit_ptr;
+    //visit_ptr = *(void**)visit_ptr;
     visit_ptr = *(void**)visit_ptr;
     visit_ptr = *(void**)visit_ptr;
     visit_ptr = *(void**)visit_ptr;
@@ -1065,9 +1223,9 @@ static int do_linked_page_walk(char* pages, int npages)
   }
 
   switch(npages - i) {
-    case 7: visit_ptr = *(void**)visit_ptr;
-    case 6: visit_ptr = *(void**)visit_ptr;
-    case 5: visit_ptr = *(void**)visit_ptr;
+    //case 7: visit_ptr = *(void**)visit_ptr;
+    //case 6: visit_ptr = *(void**)visit_ptr;
+    //case 5: visit_ptr = *(void**)visit_ptr;
     case 4: visit_ptr = *(void**)visit_ptr;
     case 3: visit_ptr = *(void**)visit_ptr;
     case 2: visit_ptr = *(void**)visit_ptr;
@@ -1084,8 +1242,6 @@ int linked_page_walk(char* page, int loop, int npages)
   }
   return sum;
 }
-
-
 
 /***********************************************************************
  *              Misc
@@ -1122,54 +1278,3 @@ uint64_t power_to_number(uint8_t power)
 }
 
 
-static int run1(char* p, int n)
-{
-  struct timeval begin, end;
-
-  int sum = walk(p, 4096 + 64, 20 , n / 2);
-  gettimeofday(&begin, NULL);
-  int loop = 160000000 / n;
-  sum += walk(p, 4096 + 64, loop, n / 2);
-  gettimeofday(&end, NULL);
-  double tmp = (end.tv_usec - begin.tv_usec + (end.tv_sec - begin.tv_sec) * 1E6 ) /
-    loop * 1000 / n;
-  printf("%d %.8f\n", n, tmp);
-  return sum;
-}
-
-int run2(char* p, int n)
-{
-  struct timeval begin, end;
-
-  int sum = period_walk(p, 20, n / 64, 64 * 4096, 32, 4096 + 64);
-  gettimeofday(&begin, NULL);
-  int loop = 160000000 / n;
-  sum += period_walk(p, loop, n / 64, 64 * 4096, 32, 4096 + 64);
-  gettimeofday(&end, NULL);
-  double tmp = (end.tv_usec - begin.tv_usec + (end.tv_sec - begin.tv_sec) * 1E6 ) /
-    loop * 1000 / n;
-  printf("%d %.8f\n", n, tmp);
-  return sum;
-}
-
-static int64_t align(int64_t ptr, int align)
-{
-  return (ptr + align - 1) & (~align);
-}
-
-int main(int argc, char** argv)
-{
-  int sum = rand();
-  char* ptr = malloc(40960 * 4096);
-  char* p = align(ptr, 4096);
-  memset(ptr, 0x5, 40960 * 4096);
-  sum += run1(p, 2);
-  sum += run1(p, 4);
-  sum += run1(p, 8);
-  sum += run1(p, 32);
-  sum += run1(p, 64);
-  sum += run2(p, 128);
-  //sum += run2(p, 256);
-  printf("%d\n", sum);
-  return 0;
-}

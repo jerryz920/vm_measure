@@ -477,14 +477,64 @@ static int measure_tlb()
   return sum;
 }
 
+//
+//int main()
+//{
+//  set_thread_cpu(0);
+//  measure_cache_info();
+////  measured_cache_info[1].size = 32 * 1024;
+////  measured_cache_info[1].group_size = 64;
+//
+//  printf("useless sum %d\n", measure_tlb());
+//  return 0;
+//}
 
-int main()
+static int run_tlb(char* p, int npages, int usable_set, int64_t total_mem_ref)
 {
-  set_thread_cpu(0);
-  measure_cache_info();
-//  measured_cache_info[1].size = 32 * 1024;
-//  measured_cache_info[1].group_size = 64;
+  struct timeval begin, end;
 
-  printf("useless sum %d\n", measure_tlb());
-  return 0;
+  int nperiod = npages / usable_set;
+  int period = PAGE_SIZE * usable_set;
+  int nstride = usable_set;
+  int stride = PAGE_SIZE + CACHE_LINE;
+  int loop = total_mem_ref / npages; // / npages;
+  int extra_stride = npages % usable_set;
+
+  page_walk_setup(p, nperiod, period, nstride, stride, extra_stride);
+  int sum = linked_page_walk(p, 10, npages);
+  gettimeofday(&begin, NULL);
+  sum += linked_page_walk(p, loop, npages);
+  gettimeofday(&end, NULL);
+  double tmp = (end.tv_usec - begin.tv_usec + (end.tv_sec - begin.tv_sec) * 1E6 ) /
+    loop * 1000 / npages;
+  fprintf(stderr, "%d %.8f\n", npages, tmp);
+  return sum;
+}
+
+
+static int64_t align(int64_t ptr, int align)
+{
+  return (ptr + align - 1) & (~align);
+}
+
+int main(int argc, char** argv)
+{
+  int sum = rand();
+  char* ptr = malloc(40960 * 4096);
+  char* p = align(ptr, 4096);
+  memset(ptr, 0x5, 40960 * 4096);
+  int64_t mem_ref = 20000000;
+
+  int i;
+  //sum = run_tlb(p, 2, 64, mem_ref);
+  //sum = run_tlb(p, 4, 64, mem_ref);
+  //sum = run_tlb(p, 8, 64, mem_ref);
+  //sum = run_tlb(p, 16, 64, mem_ref);
+  int size = atoi(argv[1]);
+  sum = run_tlb(p, size, 64, mem_ref);
+  sum = run_tlb(p, size, 64, mem_ref);
+  sum = run_tlb(p, size, 64, mem_ref);
+  sum = run_tlb(p, size, 64, mem_ref);
+  //sum = run_tlb(p, 1024, 64, mem_ref);
+  printf("#%d\n", sum);
 }

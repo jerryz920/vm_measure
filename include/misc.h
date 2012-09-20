@@ -104,10 +104,22 @@ double cpu_freq(int cpu);
  *              Memory Manipulation Interface
  ***********************************************************************/
 /*
+ *  Memory information 
+ */
+int64_t free_mem_count();
+int64_t unused_mem_count();
+int64_t buffered_mem_count();
+int64_t cached_mem_count();
+int64_t total_mem_count();
+int64_t page_in_core(char* addr, int npage, int page_size);
+
+/*
  *  Allocation/Deallocation
  */
 char* alloc_pages(int cnt, int size);
 struct HugePage* alloc_huge_pages(int cnt, int size);
+char* alloc_raw_pages(int cnt, int size);
+void free_raw_pages(char* ptr, int cnt, int size);
 void free_huge_page(struct HugePage* page);
 
 /*
@@ -123,6 +135,11 @@ int walk(const char* ptr, int stride, int loop, int nway);
  */
 int period_walk(const char* ptr, int loop, int nperiod, int period, int nstride, int stride);
 
+/*
+ *  Linked list style walk
+ */
+int page_walk_setup(char* ptr, int nperiod, int period, int nstride, int stride, int tail_stride) ;
+int linked_page_walk(char* page, int loop, int npages);
 
 /*
  *  A group walk is a walk with several page groups,
@@ -203,7 +220,6 @@ int group_walk(struct PageGroup* pg, int max_line, int loop, int inter_group_str
  ***********************************************************************/
 #define ALIGN_PTR(ptr, size) (typeof(ptr)) ((uint64_t)((((char*) ptr) + size - 1)) & (~(uint64_t)size))
 
-
 uint8_t number_to_power(uint64_t num);
 uint64_t power_to_number(uint8_t power);
 void fake_use(void* ptr);
@@ -212,7 +228,5 @@ static inline int min(int x, int y)
 {
   return x < y? x: y;
 }
-
-
 
 #endif
