@@ -12,15 +12,17 @@
 \BOOKMARK [1][-]{section.4}{Memory Allocator}{}% 12
 \BOOKMARK [2][-]{subsection.4.1}{Methodology}{section.4}% 13
 \BOOKMARK [2][-]{subsection.4.2}{Experiments}{section.4}% 14
-\BOOKMARK [2][-]{subsection.4.3}{Discussion}{section.4}% 15
-\BOOKMARK [1][-]{section.5}{Huge Pages}{}% 16
-\BOOKMARK [2][-]{subsection.5.1}{Methodology}{section.5}% 17
-\BOOKMARK [2][-]{subsection.5.2}{Experiments}{section.5}% 18
-\BOOKMARK [2][-]{subsection.5.3}{Discussion}{section.5}% 19
-\BOOKMARK [1][-]{section.6}{Shared Code Page}{}% 20
-\BOOKMARK [2][-]{subsection.6.1}{Methodology}{section.6}% 21
-\BOOKMARK [2][-]{subsection.6.2}{Experiments}{section.6}% 22
-\BOOKMARK [2][-]{subsection.6.3}{Discussion}{section.6}% 23
-\BOOKMARK [1][-]{section.7}{Conclusion}{}% 24
-\BOOKMARK [1][-]{section.8}{Acknowledgement}{}% 25
-\BOOKMARK [1][-]{section.9}{References}{}% 26
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Allocation Cost}{subsection.4.2}% 15
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Benefit from On-Demand Allocation}{subsection.4.2}% 16
+\BOOKMARK [2][-]{subsection.4.3}{Discussion}{section.4}% 17
+\BOOKMARK [1][-]{section.5}{Huge Pages}{}% 18
+\BOOKMARK [2][-]{subsection.5.1}{Methodology}{section.5}% 19
+\BOOKMARK [2][-]{subsection.5.2}{Experiments}{section.5}% 20
+\BOOKMARK [2][-]{subsection.5.3}{Discussion}{section.5}% 21
+\BOOKMARK [1][-]{section.6}{Shared Code Page}{}% 22
+\BOOKMARK [2][-]{subsection.6.1}{Methodology}{section.6}% 23
+\BOOKMARK [2][-]{subsection.6.2}{Experiments}{section.6}% 24
+\BOOKMARK [2][-]{subsection.6.3}{Discussion}{section.6}% 25
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 26
+\BOOKMARK [1][-]{section.8}{Acknowledgement}{}% 27
+\BOOKMARK [1][-]{section.9}{References}{}% 28

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  20 SEP 2012 14:16
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  20 SEP 2012 18:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -369,7 +369,11 @@ Package: booktabs 2005/04/14 v1.61803 publication quality tables
 \@lastruleclass=\count125
 \@thisrulewidth=\dimen141
 )
-(./main.aux)
+(./main.aux
+
+LaTeX Warning: Label `fig:hugetlb-time' multiply defined.
+
+)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
@@ -470,101 +474,156 @@ x.map}
 
 LaTeX Warning: Citation `github' on page \thepage  undefined on input line 90.
 
+<../figures/time.pdf, id=137, 361.35pt x 252.945pt>
+File: ../figures/time.pdf Graphic file (type pdf)
+ <use ../figures/time.pdf>
+Package pdftex.def Info: ../figures/time.pdf used on input line 94.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
-LaTeX Warning: Citation `fig:tlb-time' on page \thepage  undefined on input lin
-e 101.
+<../figures/tlb.pdf, id=139, 361.35pt x 252.945pt>
+File: ../figures/tlb.pdf Graphic file (type pdf)
+ <use ../figures/tlb.pdf>
+Package pdftex.def Info: ../figures/tlb.pdf used on input line 115.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+
+<../figures/cache.pdf, id=140, 361.35pt x 252.945pt>
+File: ../figures/cache.pdf Graphic file (type pdf)
+
+<use ../figures/cache.pdf>
+Package pdftex.def Info: ../figures/cache.pdf used on input line 123.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
 
 LaTeX Warning: Reference `append:a' on page \thepage  undefined on input line 1
-06.
+29.
 
 
 LaTeX Warning: Reference `intel-dev3' on page \thepage  undefined on input line
- 107.
+ 130.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.113 \subsection{Discussion}
-                              [2]) (./alloc.tex
-Overfull \hbox (2.66988pt too wide) in paragraph at lines 41--43
+l.143 
+       [2]) (./alloc.texpdfTeX warning (ext4): destination with the same identi
+fier (name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.17 
+      [3 <../figures/time.pdf> <../figures/tlb.pdf> <../figures/cache.pdf>]
+<../figures/alloc.pdf, id=177, 361.35pt x 252.945pt>
+File: ../figures/alloc.pdf Graphic file (type pdf)
+
+<use ../figures/alloc.pdf>
+Package pdftex.def Info: ../figures/alloc.pdf used on input line 40.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+
+Overfull \hbox (2.66988pt too wide) in paragraph at lines 55--57
 []\T1/aer/m/n/9 unmapping over-head, with/without re-set rou-tine. Mea-
  []
 
+<../figures/on_demand_4k.pdf, id=180, 361.35pt x 252.945pt>
+File: ../figures/on_demand_4k.pdf Graphic file (type pdf)
 
-LaTeX Warning: Reference `fig:alloc-time' on page \thepage  undefined on input 
-line 45.
-
-) (./hugepage.texpdfTeX warning (ext4): destination with the same identifier (n
-ame{page.}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.1 \section{Huge Pages}
-                         [3]
-
-LaTeX Warning: Reference `x-x' on page \thepage  undefined on input line 31.
-
-) (./sharedobj.tex
-
-LaTeX Warning: Reference `table2' on page \thepage  undefined on input line 27.
+<use ../figures/on_demand_4k.pdf>
+Package pdftex.def Info: ../figures/on_demand_4k.pdf used on input line 79.
+(pdftex.def)             Requested size: 192.00073pt x 134.39986pt.
 
 
-) (./conc.tex
-
-LaTeX Warning: Citation `github' on page \thepage  undefined on input line 6.
+LaTeX Warning: Citation `github' on page \thepage  undefined on input line 91.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.14 
-      [4]) (./main.bbl)
+l.98 \subsection
+                {Discussion} [4 <../figures/alloc.pdf> <../figures/on_demand_4k
+.pdf>]) (./hugepage.tex
+
+LaTeX Warning: Citation `sec:alloc' on page \thepage  undefined on input line 3
+3.
+
+<../figures/hugetlb_128m.pdf, id=200, 361.35pt x 252.945pt>
+File: ../figures/hugetlb_128m.pdf Graphic file (type pdf)
+
+<use ../figures/hugetlb_128m.pdf>
+Package pdftex.def Info: ../figures/hugetlb_128m.pdf used on input line 37.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+
+<../figures/hugetlb_rand_128m.pdf, id=201, 361.35pt x 252.945pt>
+File: ../figures/hugetlb_rand_128m.pdf Graphic file (type pdf)
+
+<use ../figures/hugetlb_rand_128m.pdf>
+Package pdftex.def Info: ../figures/hugetlb_rand_128m.pdf used on input line 46
+.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: Reference `fig:hugetlb-rand' on page \thepage  undefined on inpu
+t line 64.
+
+) (./sharedobj.texpdfTeX warning (ext4): destination with the same identifier (
+name{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.18 
+      [5 <../figures/hugetlb_128m.pdf>]) (./conc.tex
+
+LaTeX Warning: Citation `github' on page \thepage  undefined on input line 6.
+
+) (./main.bbl)
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 51.
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.51 \end{document}
-                    [5
-
-]
+                    [6 <../figures/hugetlb_rand_128m.pdf>]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 51.
  (./main.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 51.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 51.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 7E7557487F0760F85270A0A0FADB5B7D;1533.
+(rerunfilecheck)             Checksum: 8972C4FDAF236B4D9977CF694AD42676;1701.
 
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 51.
  ) 
 Here is how much of TeX's memory you used:
- 6658 strings out of 493488
- 93620 string characters out of 3141326
- 188085 words of memory out of 3000000
- 9795 multiletter control sequences out of 15000+200000
- 48451 words of font info for 65 fonts, out of 3000000 for 9000
+ 6725 strings out of 493488
+ 94868 string characters out of 3141326
+ 195032 words of memory out of 3000000
+ 9839 multiletter control sequences out of 15000+200000
+ 53871 words of font info for 75 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 41i,11n,29p,442b,321s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 41i,11n,29p,597b,321s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/local/texlive/2012/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/tex
-live/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texli
-ve/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive
-/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/20
-12/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2012/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2012/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2012/texm
-f-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2012/texmf-dist/
-fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/t
-ype1/urw/times/utmb8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/urw/t
-imes/utmri8a.pfb>
-Output written on main.pdf (5 pages, 147770 bytes).
+live/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/local/te
+xlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texl
+ive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texliv
+e/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2
+012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2012
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2012/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2012/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2012/texmf-
+dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2012/texmf-dist/fo
+nts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/typ
+e1/urw/times/utmb8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/urw/tim
+es/utmri8a.pfb>
+Output written on main.pdf (6 pages, 275196 bytes).
 PDF statistics:
- 206 PDF objects out of 1000 (max. 8388607)
- 186 compressed objects within 2 object streams
- 35 named destinations out of 1000 (max. 500000)
- 209 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 289 PDF objects out of 1000 (max. 8388607)
+ 251 compressed objects within 3 object streams
+ 45 named destinations out of 1000 (max. 500000)
+ 260 words of extra memory for PDF output out of 10000 (max. 10000000)
 

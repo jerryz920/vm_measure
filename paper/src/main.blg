@@ -4,7 +4,7 @@ The top-level auxiliary file: main.aux
 The style file: abbrv.bst
 Database file #1: vm.bib
 Warning--I didn't find a database entry for "github"
-Warning--I didn't find a database entry for "fig:tlb-time"
+Warning--I didn't find a database entry for "sec:alloc"
 Warning--to sort, need author or key in c10k
 Warning--to sort, need author or key in apache
 Warning--to sort, need author or key in firefox
@@ -12,7 +12,7 @@ Warning--to sort, need author or key in dllhell
 Warning--can't use both volume and number fields in sigmetrics:cache
 You've used 6 entries,
             2118 wiz_defined-function locations,
-            526 strings with 4303 characters,
+            526 strings with 4300 characters,
 and the built_in function-call counts, 1595 in all, are:
 = -- 162
 > -- 35

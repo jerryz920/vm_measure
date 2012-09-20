@@ -8,36 +8,68 @@ library, code size are largely reduced.  Moreover, the shared library is
 usually place independent and can be dynamically loaded by the applications.
 This enables great flexibility in design. For instance, apache~\cite{apache}
 uses dynamic libraries to implement its modules, which can be loaded on demand
-and built separately. In this section I compare the typical applications' code
-size by linked them statically and dynamically. Performance is nearly the 
-same for no matter static or dynamic linked program. I will discuss this in
-\ref{sec:conc}.
+and built separately. In this section I focus comparing the typical
+applications' code size by linked them statically and dynamically.
 
 \subsection{Methodology}
 It's quite straightforward to measure the code size. I compiled
 LLVM~\cite{llvm} and Apache~\cite{apache} to see the code size difference for
 shared library version and statically linked version.
 
-I also tried to use an apache server to exam the performance issue of dynamic
-linked library. But finally I gave up, it is because the \emph{fork} system
-call will make parent-children sharing the same code region, then the difference
-in code size will be small. So I didn't finish the experiment about this part.
+I also tried to use an apache server using prefork mechanism to check the
+performance issues of shared library. But finally I gave up, it is because the
+\emph{fork} system call will make parent-children sharing the same code region,
+then the difference in code size will be small. It is possible to synthesis
+some benchmark, but even if that produces bad performance for shared library, it
+does not mean using shared library in real applications would yield bad
+performance. Due to these considerations, I didn't finish the experiments on this. 
 
 \subsection{Experiments}
- The code size from LLVM is shown in Table~\ref{table2}. Obviously the statically
- linked programs are much larger in code size than the counterpart in
- dynamically linked program. Increasing in code size is usually not acceptable to industrial use, so
- dynamic library naturally comes to our sight.
+
+\begin{table}[ht] \scriptsize
+\begin{tabular}{|l|c|c||l|c|c|}
+ \hline
+ name & shared & static & name & shared & static \\
+ \hline
+httpd             &     1.6M & 7.3M &  bugpoint          &     3.5M & 75M   \\
+clang             &     283M & 459M &   clang-check       &     135M & 152M   \\
+clang-tblgen      &     6.0M & 6.0M &   llc               &     908K & 146M   \\
+lli               &     844K & 103M &   llvm-ar           &     484K & 14M   \\
+llvm-as           &     248K & 17M  &  bcanalyzer   &     564K & 2.6M   \\
+llvm-config       &     2.1M & 2.1M &   llvm-cov          &     132K & 2.2M   \\
+llvm-diff         &     1.3M & 15M  &  llvm-dis          &     384K & 14M   \\
+ opt               &     2.0M & 73M &   llvm-extract      &     420K & 23M   \\
+llvm-link         &     344K & 30M  &  llvm-mc           &     916K & 20M   \\
+llvm-nm           &     480K & 15M  &  objdump      &     1.2M & 22M   \\
+llvm-prof         &     824K & 16M  &  llvm-ranlib       &     280K & 14M   \\
+llvm-readobj      &     424K & 3.8M &   llvm-rtdyld       &     268K & 4.5M   \\
+llvm-size         &     396K & 3.8M &   llvm-stress       &     604K & 14M   \\
+llvm-tblgen       &     22M & 22M   & macho-dump        &     188K & 2.2M   \\
+
+\hline
+\end{tabular}
+\caption{Code size comparison for LLVM code suite and Apache Server using
+static libraries and shared libraries. The unit is byte.}
+\label{tab:codesize}
+\end{table}
+The code size from LLVM is shown in Table~\ref{tab:codesize}. Obviously the
+statically linked programs are much larger in code size than the counterpart
+in dynamically linked program. Increasing in code size is usually not
+acceptable to industrial use, making deployment more difficult. To reduce
+the code size and make it possible to share, shared library could serve
+well for this purpose.
 
 \subsection{Discussion}
-Originally I would like to compile firefox~\cite{firefox} to see the code size
-change. But after some attempts I found they do not support static linking in their
-build scripts so I moved to LLVM.
+Originally I tried to compile firefox~\cite{firefox} to see the code size
+change. But after some attempts I found they had abandoned support of static linking 
+long ago in their build scripts, so I moved to LLVM. The reason size is such huge
+is because it is a default debug building. However, even the optimized version
+still occupies 1GB on disk.
 
 Another fact is measuring performance difference between static programs and
-dynamic problems are quite difficult. The system call \emph{fork} provides a
-chance to share the read only code. Thus although programs are larger in size,
-it may not occupy rally that much memory. 
+dynamic problems are quite difficult. As mentioned before, the system call
+\emph{fork} provides a chance to share the read only code. Thus although
+programs are larger in size, it may not occupy rally that much memory. 
 
 Although shared objects are extensively used in current systems, it is not
 correct to say that static library is no longer required. Some problems 
