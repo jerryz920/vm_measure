@@ -1,0 +1,15 @@
+
+set terminal postscript eps enhanced  font  "Arial Black, 16"
+set output "hugetlb_rand_128m.eps"
+set xrange [-1:7]
+set xlabel "iteration" font  "Arial Black, 18"
+set ylabel "normalized time(us)" font "Arial Black, 18"
+set logscale y
+set yrange [0.0001:256]
+plot "large_rand_stat_128m_fixed_0" using 4:xtic(1) t "large-4B" w lp lw 1, \
+     "large_rand_stat_128m_fixed_1" using 4 t "large-4KB" w lp lw 1, \
+     "large_rand_stat_128m_fixed_3" using 4 t "large-2MB" w lp lw 1,\
+     "small_rand_stat_128m_fixed_0" using 4 t "small-4B" w lp lw 1, \
+     "small_rand_stat_128m_fixed_1" using 4 t "small-4KB" w lp lw 1, \
+     "small_rand_stat_128m_fixed_3" using 4 t "small-2MB" w lp lw 1\
+
