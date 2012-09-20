@@ -9,7 +9,6 @@ set xtics 10 nomirror
 set ytics 10 nomirror
 set mxtics 2
 set mytics 2
-set title "Effect of On Demand Allocation on 32KB stride Access"
 #set logscale y
 set ytics 0.1,0.4,4
 set yrange [0.1:4.0]
