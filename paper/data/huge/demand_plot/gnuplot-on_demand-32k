@@ -1,5 +1,5 @@
 
-set terminal postscript eps enhanced
+set terminal postscript eps enhanced font "Arial Black, 16"
 set output "on_demand_32k.eps"
 set boxwidth 0.75 absolute
 set style fill pattern 1.00 border -1
@@ -15,8 +15,8 @@ set ytics 0.1,0.4,4
 set yrange [0.1:4.0]
 #set logscale y
 #set xrange [-1:4]
-set ylabel "Normalized Time(us)"
-set xlabel "Memory Allocated (MB)"
+set ylabel "Normalized Time(us)" font "Arial Black,18"
+set xlabel "Memory Allocated (MB)" font "Arial Black,18"
 
 plot 'histdata-32k' using 2 t "4KB Page Sequentail", '' using 3:xtic(1) t "4KB Page Random", \
 	'' using 4 t "2MB Page Sequentail", '' using 5 t "2MB Page Random"

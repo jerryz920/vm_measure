@@ -2,13 +2,12 @@
 set autoscale
 unset log
 unset label
-set terminal postscript eps enhanced
+set terminal postscript eps enhanced font "Arial Black, 16"
 set output "cache.eps"
 set xtic auto
 set ytic auto
-set title "Cache Hit Ratio"
-set xlabel "probing page count"
-set ylabel "hit ratio(%)"
+set xlabel "probing page count" font "Arial Black, 18"
+set ylabel "hit ratio(%)" font "Arial Black, 18"
 
 
 #plot "cache-hit-rate" using 1:5 title "happy"

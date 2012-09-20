@@ -1,10 +1,9 @@
 
-set terminal postscript eps enhanced
-set title "Memory Walk for 128MB Allocation"
+set terminal postscript eps enhanced  font  "Arial Black, 16"
 set output "hugetlb_128m.eps"
 set xrange [-1:7]
-set xlabel "iteration"
-set ylabel "normalized time(us)"
+set xlabel "iteration" font  "Arial Black, 18"
+set ylabel "normalized time(us)" font "Arial Black, 18"
 set logscale y
 set yrange [0.0001:256]
 plot "large_seq_stat_128m_fixed_0" using 4:xtic(1) t "large-4B" w lp lw 1, \
