@@ -30,21 +30,20 @@ page faults can be amortized in later walk.
 \subsection{Experiments}
 The first thing I tried to measure is the preparation time of the huge pages.
 But it is quite fast on my machine, less than 1 second to prepare 5000 huge
-pages. The workload I used to stress the system is mentioned in section~\cite{sec:alloc}. After each 5 run of the allocator testing, I checked the preparation time
+pages. The workload I used to stress the system is mentioned in section~\ref{sec:alloc}. After each 5 run of the allocator testing, I checked the preparation time
 
 \begin{figure}[hbt]
 \centering
 \includegraphics[width=0.9\linewidth]{../figures/hugetlb_128m}
-\label{fig:hugetlb-time}
 \caption{Memory walk time on 128MB mapped memory. I use different stride, and
 iterations for each walk, and measure the average time cost. The larger the 
 stride size is, the worse performance I will get by using huge pages. Due to
 space limitation, I didn't draw more stride result. Actually the small page
 beats huge ones at the point of 32KB stride.}
+\label{fig:hugetlb-time}
 \end{figure}
 \begin{figure}[h]
 \includegraphics[width=0.9\linewidth]{../figures/hugetlb_rand_128m}
-\label{fig:hugetlb-time}
 \caption{Random walking is similar with sequential walking, when in small stride
 size the huge pages perform better. Here the stride is just used to determine the 
 amount of memory reference, rather than walk pattern. I use stride to label it
@@ -52,6 +51,7 @@ just for comparison with sequential walk. One thing changes in random walk is
 that for 4B stride, both of the two configurations perform worse than
 sequential walk. The reason may be related with locality, but it is not what we
 address here.}
+\label{fig:hugetlb-rand}
 \end{figure}
 
 Figure~\ref{fig:hugetlb-time} shows the cost of walking on newly allocated

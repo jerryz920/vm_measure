@@ -15,6 +15,7 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \citation{c10k}
+\citation{perf}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{\thepage }{section.1}}
 \newlabel{sec:intro}{{1}{\thepage }{Introduction\relax }{section.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Experimental Environment}{\thepage }{section.2}}
@@ -23,6 +24,7 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Hardware and Software Environment}{\thepage }{subsection.2.2}}
 \citation{sigmetrics:cache}
 \citation{github}
+\citation{intel-dev3}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Measuring TLB size}{\thepage }{section.3}}
 \newlabel{sec:tlb}{{3}{\thepage }{Measuring TLB size\relax }{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Methodology}{\thepage }{subsection.3.1}}
@@ -44,25 +46,24 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Methodology}{\thepage }{subsection.4.1}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Experiments}{\thepage }{subsection.4.2}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Allocation Cost}{\thepage }{subsubsection.4.2.1}}
-\newlabel{fig:alloc}{{4.2.1}{\thepage }{Allocation Cost\relax }{subsubsection.4.2.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The different part of allocation time. \emph  {map} means the entire time including the mapping, walking, and unmapping. \emph  {unmap} has two options, to zero out the page (suffixed with "-clean"), and don't do extra things (suffixed with "-no-clean"). The first walk means the duration of the first time we visit the allocated space, and walk means the time to do memory walk after we have touched all the pages several times.}}{\thepage }{figure.4}}
+\newlabel{fig:alloc}{{4}{\thepage }{The different part of allocation time. \emph {map} means the entire time including the mapping, walking, and unmapping. \emph {unmap} has two options, to zero out the page (suffixed with "-clean"), and don't do extra things (suffixed with "-no-clean"). The first walk means the duration of the first time we visit the allocated space, and walk means the time to do memory walk after we have touched all the pages several times}{figure.4}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Benefit from On-Demand Allocation}{\thepage }{subsubsection.4.2.2}}
-\newlabel{fig:on-demand}{{4.2.2}{\thepage }{Benefit from On-Demand Allocation\relax }{subsubsection.4.2.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces The different of doing random walk and sequential walk through the newly allocated 128MB memory. For small page space, random walk would not bring in the page not needed, thus performs better than sequential walk. But for large page space, random walk is slower.}}{\thepage }{figure.5}}
-\citation{sec:alloc}
-\citation{apache}
-\citation{llvm}
+\newlabel{fig:on-demand}{{5}{\thepage }{The different of doing random walk and sequential walk through the newly allocated 128MB memory. For small page space, random walk would not bring in the page not needed, thus performs better than sequential walk. But for large page space, random walk is slower}{figure.5}{}}
 \citation{apache}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Discussion}{\thepage }{subsection.4.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Huge Pages}{\thepage }{section.5}}
 \newlabel{sec:hugepage}{{5}{\thepage }{Huge Pages\relax }{section.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Methodology}{\thepage }{subsection.5.1}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Experiments}{\thepage }{subsection.5.2}}
-\newlabel{fig:hugetlb-time}{{5.2}{\thepage }{Experiments\relax }{subsection.5.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Memory walk time on 128MB mapped memory. I use different stride, and iterations for each walk, and measure the average time cost. The larger the stride size is, the worse performance I will get by using huge pages. Due to space limitation, I didn't draw more stride result. Actually the small page beats huge ones at the point of 32KB stride.}}{\thepage }{figure.6}}
+\newlabel{fig:hugetlb-time}{{6}{\thepage }{Memory walk time on 128MB mapped memory. I use different stride, and iterations for each walk, and measure the average time cost. The larger the stride size is, the worse performance I will get by using huge pages. Due to space limitation, I didn't draw more stride result. Actually the small page beats huge ones at the point of 32KB stride}{figure.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Discussion}{\thepage }{subsection.5.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Shared Code Page}{\thepage }{section.6}}
 \newlabel{sec:sharedobj}{{6}{\thepage }{Shared Code Page\relax }{section.6}{}}
+\citation{llvm}
+\citation{apache}
 \citation{firefox}
 \citation{dllhell}
 \citation{github}
@@ -72,10 +73,13 @@
 \bibcite{c10k}{2}
 \bibcite{dllhell}{3}
 \bibcite{firefox}{4}
-\bibcite{llvm}{5}
-\bibcite{sigmetrics:cache}{6}
-\newlabel{fig:hugetlb-time}{{5.2}{\thepage }{Experiments\relax }{figure.6}{}}
+\bibcite{intel-dev3}{5}
+\bibcite{perf}{6}
+\bibcite{github}{7}
+\bibcite{llvm}{8}
+\bibcite{sigmetrics:cache}{9}
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Random walking is similar with sequential walking, when in small stride size the huge pages perform better. Here the stride is just used to determine the amount of memory reference, rather than walk pattern. I use stride to label it just for comparison with sequential walk. One thing changes in random walk is that for 4B stride, both of the two configurations perform worse than sequential walk. The reason may be related with locality, but it is not what we address here.}}{\thepage }{figure.7}}
+\newlabel{fig:hugetlb-rand}{{7}{\thepage }{Random walking is similar with sequential walking, when in small stride size the huge pages perform better. Here the stride is just used to determine the amount of memory reference, rather than walk pattern. I use stride to label it just for comparison with sequential walk. One thing changes in random walk is that for 4B stride, both of the two configurations perform worse than sequential walk. The reason may be related with locality, but it is not what we address here}{figure.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Methodology}{\thepage }{subsection.6.1}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Experiments}{\thepage }{subsection.6.2}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Code size comparison for LLVM code suite and Apache Server using static libraries and shared libraries. The unit is byte.}}{\thepage }{table.1}}

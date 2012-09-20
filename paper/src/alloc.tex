@@ -37,14 +37,14 @@ also measure the normalized time used to unmap a clean page and a dirty page.
 \subsubsection{Allocation Cost}
 \begin{figure}[htpb]
 \centering
-\includegraphics[width=0.9\linewidth]{../figures/alloc}
-\label{fig:alloc}
+\includegraphics[width=0.8\linewidth]{../figures/alloc}
 \caption{The different part of allocation time. \emph{map} means the entire time
 including the mapping, walking, and unmapping. \emph{unmap} has two options, to
 zero out the page (suffixed with "-clean"), and don't do extra things (suffixed
 with "-no-clean"). The first walk means the duration of the first time we visit
 the allocated space, and walk means the time to do memory walk after we have
 touched all the pages several times.}
+\label{fig:alloc}
 \end{figure}
 To address questions we mentioned, I measured several parts of the overhead in 
 figure~\ref{fig:alloc}:
@@ -76,12 +76,12 @@ large that we can not distinguish that if it actually does page zero out.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.8\linewidth]{../figures/on_demand_4k}
-\label{fig:on-demand}
+\includegraphics[width=0.9\linewidth]{../figures/on_demand_4k}
 \caption{The different of doing random walk and sequential walk through the 
 newly allocated 128MB memory. For small page space, random walk would not bring
 in the page not needed, thus performs better than sequential walk. But for
 large page space, random walk is slower.}
+\label{fig:on-demand}
 \end{figure}
 
 The on demand allocation is an optmization for virtual memory. To see its
