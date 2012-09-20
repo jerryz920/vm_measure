@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:27:43 2012
+
+
+ Performance counter stats for './tlbsz 582' (10 runs):
+
+         4,768,341 r01D1                                                         ( +-  0.19% )
+        77,885,754 r02D1                                                         ( +-  0.02% )
+            27,341 r04D1                                                         ( +- 58.53% )
+             1,925 r20D1                                                         ( +- 14.00% )
+
+       0.369401332 seconds time elapsed                                          ( +-  2.54% )
+

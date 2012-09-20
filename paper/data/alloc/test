@@ -1,0 +1,19 @@
+set terminal jpeg medium
+set output "histo.jpeg"
+set boxwidth 0.75 absolute
+set style fill solid 1.00 border -1
+set style data histogram
+set style histogram cluster gap 1
+set xtics 1000 nomirror
+set ytics 100 nomirror
+set mxtics 2
+set mytics 2
+set ytics 10
+set yrange [0:30]
+set ylabel "Total time"
+set xlabel "Session number"
+
+plot 'data' using 3 t "Server", '' using 4 t "Client", '' using 5:xtic(1) t "Network"
+
+
+pause -1 "Hit any key to continue"

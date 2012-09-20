@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:24:25 2012
+
+
+ Performance counter stats for './tlbsz 214' (10 runs):
+
+        82,421,461 r01D1                                                         ( +-  0.03% )
+            43,972 r02D1                                                         ( +-  1.98% )
+             8,531 r04D1                                                         ( +-  2.66% )
+             1,134 r20D1                                                         ( +- 13.76% )
+
+       0.181790914 seconds time elapsed                                          ( +- 11.35% )
+

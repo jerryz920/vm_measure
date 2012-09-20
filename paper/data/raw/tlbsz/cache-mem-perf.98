@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:23:25 2012
+
+
+ Performance counter stats for './tlbsz 98' (10 runs):
+
+        82,432,666 r01D1                                                         ( +-  0.02% )
+            40,231 r02D1                                                         ( +-  0.51% )
+             8,384 r04D1                                                         ( +-  1.53% )
+             1,094 r20D1                                                         ( +- 14.90% )
+
+       0.188124557 seconds time elapsed                                          ( +-  5.72% )
+

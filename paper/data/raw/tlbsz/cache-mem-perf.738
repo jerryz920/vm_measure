@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:30:28 2012
+
+
+ Performance counter stats for './tlbsz 738' (10 runs):
+
+         2,670,580 r01D1                                                         ( +-  1.31% )
+        48,407,037 r02D1                                                         ( +- 22.70% )
+        31,709,419 r04D1                                                         ( +- 34.66% )
+             2,642 r20D1                                                         ( +- 20.44% )
+
+       0.470582618 seconds time elapsed                                          ( +-  7.95% )
+

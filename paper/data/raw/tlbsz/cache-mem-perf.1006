@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:36:28 2012
+
+
+ Performance counter stats for './tlbsz 1006' (10 runs):
+
+         2,783,039 r01D1                                                         ( +-  0.68% )
+        17,693,434 r02D1                                                         ( +- 34.16% )
+        62,430,374 r04D1                                                         ( +-  9.69% )
+             2,344 r20D1                                                         ( +- 17.26% )
+
+       0.589082404 seconds time elapsed                                          ( +-  3.09% )
+

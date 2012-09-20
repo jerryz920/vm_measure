@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:32:53 2012
+
+
+ Performance counter stats for './tlbsz 854' (10 runs):
+
+         2,654,721 r01D1                                                         ( +-  1.40% )
+        42,923,891 r02D1                                                         ( +- 22.80% )
+        37,193,627 r04D1                                                         ( +- 26.32% )
+             2,560 r20D1                                                         ( +- 18.37% )
+
+       0.499570079 seconds time elapsed                                          ( +-  7.02% )
+

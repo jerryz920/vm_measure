@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:32:20 2012
+
+
+ Performance counter stats for './tlbsz 830' (10 runs):
+
+         2,751,444 r01D1                                                         ( +-  0.87% )
+        21,245,866 r02D1                                                         ( +- 36.65% )
+        58,849,342 r04D1                                                         ( +- 13.23% )
+             2,970 r20D1                                                         ( +- 11.86% )
+
+       0.569827404 seconds time elapsed                                          ( +-  4.49% )
+

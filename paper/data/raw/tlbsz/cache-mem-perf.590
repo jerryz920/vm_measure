@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:27:51 2012
+
+
+ Performance counter stats for './tlbsz 590' (10 runs):
+
+         2,636,815 r01D1                                                         ( +-  1.09% )
+        57,717,999 r02D1                                                         ( +- 16.88% )
+        22,393,428 r04D1                                                         ( +- 43.53% )
+             2,061 r20D1                                                         ( +- 20.11% )
+
+       0.432641726 seconds time elapsed                                          ( +-  6.97% )
+

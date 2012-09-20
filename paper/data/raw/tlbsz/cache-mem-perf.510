@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:26:58 2012
+
+
+ Performance counter stats for './tlbsz 510' (10 runs):
+
+        80,000,289 r01D1                                                         ( +-  0.01% )
+         2,483,079 r02D1                                                         ( +-  0.33% )
+             9,841 r04D1                                                         ( +-  4.54% )
+               974 r20D1                                                         ( +- 22.36% )
+
+       0.195518826 seconds time elapsed                                          ( +-  6.19% )
+

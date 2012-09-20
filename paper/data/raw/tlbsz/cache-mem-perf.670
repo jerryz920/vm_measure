@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:29:13 2012
+
+
+ Performance counter stats for './tlbsz 670' (10 runs):
+
+         2,592,037 r01D1                                                         ( +-  0.56% )
+        70,118,493 r02D1                                                         ( +-  6.92% )
+         9,981,514 r04D1                                                         ( +- 48.53% )
+             2,168 r20D1                                                         ( +- 16.01% )
+
+       0.387342492 seconds time elapsed                                          ( +-  3.84% )
+

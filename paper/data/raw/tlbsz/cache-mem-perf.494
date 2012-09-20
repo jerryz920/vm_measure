@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:26:50 2012
+
+
+ Performance counter stats for './tlbsz 494' (10 runs):
+
+        79,944,166 r01D1                                                         ( +-  0.01% )
+         2,565,885 r02D1                                                         ( +-  0.31% )
+             9,196 r04D1                                                         ( +-  2.08% )
+             1,083 r20D1                                                         ( +- 16.30% )
+
+       0.220490610 seconds time elapsed                                          ( +-  5.23% )
+

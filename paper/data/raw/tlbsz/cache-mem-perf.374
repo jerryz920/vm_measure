@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:25:50 2012
+
+
+ Performance counter stats for './tlbsz 374' (10 runs):
+
+        80,093,630 r01D1                                                         ( +-  0.01% )
+         2,420,167 r02D1                                                         ( +-  0.08% )
+             9,073 r04D1                                                         ( +-  1.16% )
+             1,346 r20D1                                                         ( +- 15.74% )
+
+       0.220506935 seconds time elapsed                                          ( +-  5.15% )
+

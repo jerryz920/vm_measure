@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:25:37 2012
+
+
+ Performance counter stats for './tlbsz 350' (10 runs):
+
+        79,933,596 r01D1                                                         ( +-  0.02% )
+         2,575,919 r02D1                                                         ( +-  0.08% )
+             8,802 r04D1                                                         ( +-  0.96% )
+             1,240 r20D1                                                         ( +- 16.74% )
+
+       0.218412162 seconds time elapsed                                          ( +-  6.74% )
+

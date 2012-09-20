@@ -1,0 +1,11 @@
+# started on Wed Sep 19 08:22:37 2012
+
+
+ Performance counter stats for './tlbsz 702' (10 runs):
+
+            16,874 dTLB-misses               #    0.02% of all dTLB cache hits   ( +- 25.49% )
+        33,137,680 r1008                                                         ( +- 16.74% )
+        82,934,712 dTLB                                                          ( +-  0.04% )
+
+       0.412564313 seconds time elapsed                                          ( +-  7.54% )
+

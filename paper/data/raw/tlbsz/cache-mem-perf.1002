@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:36:22 2012
+
+
+ Performance counter stats for './tlbsz 1002' (10 runs):
+
+         2,811,955 r01D1                                                         ( +-  0.22% )
+        10,288,583 r02D1                                                         ( +- 11.68% )
+        69,816,136 r04D1                                                         ( +-  1.72% )
+             3,007 r20D1                                                         ( +- 18.06% )
+
+       0.614288648 seconds time elapsed                                          ( +-  0.58% )
+

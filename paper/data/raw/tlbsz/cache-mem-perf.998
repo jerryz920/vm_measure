@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:36:16 2012
+
+
+ Performance counter stats for './tlbsz 998' (10 runs):
+
+         2,771,518 r01D1                                                         ( +-  0.65% )
+        22,491,473 r02D1                                                         ( +- 25.31% )
+        57,624,103 r04D1                                                         ( +-  9.87% )
+             2,829 r20D1                                                         ( +- 19.25% )
+
+       0.579807451 seconds time elapsed                                          ( +-  3.33% )
+

@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:30:41 2012
+
+
+ Performance counter stats for './tlbsz 750' (10 runs):
+
+         2,719,469 r01D1                                                         ( +-  1.25% )
+        33,927,951 r02D1                                                         ( +- 29.37% )
+        46,160,700 r04D1                                                         ( +- 21.58% )
+             2,473 r20D1                                                         ( +- 19.64% )
+
+       0.524390176 seconds time elapsed                                          ( +-  6.73% )
+

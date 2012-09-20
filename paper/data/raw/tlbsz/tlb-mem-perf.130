@@ -1,0 +1,11 @@
+# started on Wed Sep 19 08:10:27 2012
+
+
+ Performance counter stats for './tlbsz 130' (10 runs):
+
+             7,699 dTLB-misses               #    0.01% of all dTLB cache hits   ( +-  1.57% )
+        72,690,797 r1008                                                         ( +-  9.23% )
+        82,677,131 dTLB                                                          ( +-  0.01% )
+
+       0.205998289 seconds time elapsed                                          ( +-  4.39% )
+

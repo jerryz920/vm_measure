@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:26:21 2012
+
+
+ Performance counter stats for './tlbsz 438' (10 runs):
+
+        80,037,515 r01D1                                                         ( +-  0.01% )
+         2,467,130 r02D1                                                         ( +-  0.25% )
+             9,185 r04D1                                                         ( +-  2.54% )
+             1,240 r20D1                                                         ( +- 19.38% )
+
+       0.213588381 seconds time elapsed                                          ( +-  7.66% )
+

@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:26:06 2012
+
+
+ Performance counter stats for './tlbsz 406' (10 runs):
+
+        79,841,010 r01D1                                                         ( +-  0.02% )
+         2,631,300 r02D1                                                         ( +-  0.15% )
+             9,134 r04D1                                                         ( +-  2.99% )
+               791 r20D1                                                         ( +- 15.22% )
+
+       0.181079550 seconds time elapsed                                          ( +-  9.56% )
+

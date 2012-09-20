@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:30:14 2012
+
+
+ Performance counter stats for './tlbsz 726' (10 runs):
+
+         2,643,502 r01D1                                                         ( +-  1.44% )
+        55,866,485 r02D1                                                         ( +- 20.83% )
+        24,249,696 r04D1                                                         ( +- 47.99% )
+             2,346 r20D1                                                         ( +- 16.66% )
+
+       0.443122779 seconds time elapsed                                          ( +-  8.97% )
+

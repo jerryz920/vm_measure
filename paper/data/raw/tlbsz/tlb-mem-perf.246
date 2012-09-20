@@ -1,0 +1,11 @@
+# started on Wed Sep 19 08:12:27 2012
+
+
+ Performance counter stats for './tlbsz 246' (10 runs):
+
+             8,254 dTLB-misses               #    0.01% of all dTLB cache hits   ( +-  0.89% )
+        77,677,516 r1008                                                         ( +-  1.20% )
+        82,717,347 dTLB                                                          ( +-  0.00% )
+
+       0.239855260 seconds time elapsed                                          ( +-  0.21% )
+

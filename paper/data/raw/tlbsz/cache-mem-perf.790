@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:31:28 2012
+
+
+ Performance counter stats for './tlbsz 790' (10 runs):
+
+         2,697,456 r01D1                                                         ( +-  1.18% )
+        39,916,265 r02D1                                                         ( +- 23.57% )
+        40,179,360 r04D1                                                         ( +- 23.41% )
+             2,460 r20D1                                                         ( +- 15.71% )
+
+       0.502255950 seconds time elapsed                                          ( +-  6.78% )
+

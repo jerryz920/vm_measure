@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:33:08 2012
+
+
+ Performance counter stats for './tlbsz 866' (10 runs):
+
+         2,736,206 r01D1                                                         ( +-  0.92% )
+        30,511,684 r02D1                                                         ( +- 25.75% )
+        49,595,814 r04D1                                                         ( +- 15.84% )
+             2,965 r20D1                                                         ( +- 11.18% )
+
+       0.543610928 seconds time elapsed                                          ( +-  4.76% )
+

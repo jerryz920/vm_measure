@@ -1,0 +1,22 @@
+reset
+clear
+set terminal postscript eps enhanced
+set output "alloc.eps"
+set boxwidth 0.6 relative
+#set logscale y;
+set xtics 2 mirror
+set ytics 10,10,100
+set mxtics 2
+set mytics 2
+set yrange [0:30]
+set xrange [-10:10]
+set ylabel "Normalized Time"
+set xlabel "Session number"
+set style fill pattern 0.5 border -1
+set style data histogram
+set style histogram rowstacked gap 2
+
+plot "data" using 2 t "Idle" w points, \
+     "data" using 3 t "Busy" w points
+
+

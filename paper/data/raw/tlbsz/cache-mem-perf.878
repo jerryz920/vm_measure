@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:33:25 2012
+
+
+ Performance counter stats for './tlbsz 878' (10 runs):
+
+         2,759,487 r01D1                                                         ( +-  1.08% )
+        24,121,996 r02D1                                                         ( +- 36.56% )
+        56,005,025 r04D1                                                         ( +- 15.75% )
+             2,804 r20D1                                                         ( +- 17.61% )
+
+       0.566399543 seconds time elapsed                                          ( +-  5.20% )
+

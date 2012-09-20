@@ -1,0 +1,12 @@
+# started on Wed Sep 19 10:25:58 2012
+
+
+ Performance counter stats for './tlbsz 390' (10 runs):
+
+        79,966,768 r01D1                                                         ( +-  0.02% )
+         2,531,504 r02D1                                                         ( +-  0.11% )
+             8,818 r04D1                                                         ( +-  2.53% )
+             1,366 r20D1                                                         ( +- 20.30% )
+
+       0.210715429 seconds time elapsed                                          ( +-  6.72% )
+

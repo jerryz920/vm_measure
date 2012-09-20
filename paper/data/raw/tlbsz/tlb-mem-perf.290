@@ -1,0 +1,11 @@
+# started on Wed Sep 19 08:13:13 2012
+
+
+ Performance counter stats for './tlbsz 290' (10 runs):
+
+             8,453 dTLB-misses               #    0.01% of all dTLB cache hits   ( +-  1.16% )
+        56,237,071 r1008                                                         ( +- 14.84% )
+        82,689,034 dTLB                                                          ( +-  0.02% )
+
+       0.213157329 seconds time elapsed                                          ( +-  6.70% )
+
