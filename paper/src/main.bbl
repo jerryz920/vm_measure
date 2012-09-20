@@ -1,9 +1,5 @@
 \begin{thebibliography}{1}
 
-\bibitem{apachebench}
-{Apache Benchmark}.
-\newblock http://httpd.apache.org/docs/2.2/programs/ab.html.
-
 \bibitem{apache}
 {Apache Web Server}.
 \newblock http://httpd.apache.org.
@@ -26,11 +22,6 @@ C.~Lattner and V.~Adve.
   transformation.
 \newblock In {\em Code Generation and Optimization, 2004. CGO 2004.
   International Symposium on}, pages 75--86. IEEE, 2004.
-
-\bibitem{linker}
-J.~R.Levine.
-\newblock {\em {Linkers and Loaders}}, chapter Chapter 8: Loading and overlays.
-\newblock Morgan-Kauffman, 1999.
 
 \bibitem{sigmetrics:cache}
 K.~Yotov, K.~Pingali, and P.~Stodghill.

@@ -33,14 +33,37 @@ still remain is that kernel can zero out pages when pages are unmapped. So I
 also measure the normalized time used to unmap a clean page and a dirty page.
 
 \subsection{Experiments}
+I measured several parts of the overhead: 
+\begin{itemize}
+\item total overhead (tagged as "map-full"). Including mapping, memory walking
+and unmapping time.
+\item first time walk overhead. This will ensure the pages be allocated.
+\item unmapping overhead, with/without reset routine. Measuring this part is
+for the sake to explore if operating systems can do zero out at reclaim time.
+\item regular time walk.
+\end{itemize}
+\ref{fig:alloc-time}
+These experiments are done under memory idle period, and memory pressure
+period. To compare the zero-out strategy, we also measured the allocation
+time when memory is scarse resource. In this scenario, the free memory I leave
+to operating system is less than 1.5GB, and the allocation unit I used is
+1GB, to make sure few free pages are in the system, and it must zero out pages
+at the time of granting or revoking them to users.
 
-
-
+From figure we can easily find out the allocation is on demand, since regular
+walking is much too cheap comparing with the first time memory walk after
+mapping a set of memory. And also the performance retains regardless of the
+memory pressure. According to that fact, it is only reasonable to zero out
+pages on allocation and deallocation time. But the measurement of unmapping
+time did not show much information, since the unmapping time is sufficiently
+large that we can not distinguish that if it actually does page zero out.
 
 \subsection{Discussion}
 One thing hard to illustrate is whether operating system will 'smartly'
 allocate some pages for small requests. For example, when user requests for
 only 1 page, then allocate the page immediately to avoid a page fault can be
-somewhat a good choice. This behavior should be able to get observed from
-the hardware monitoring, but due to both the time limit and space limit, I
+somewhat a good choice. But this period is too small and will hardly get 
+measured correctly just by using wall clock. However, if the operating system
+can provide a page fault counter for each process, then it is still possible
+to measure such behavior. Due to both the time limit and space limit, I
 didn't implement this as part of the benchmark.

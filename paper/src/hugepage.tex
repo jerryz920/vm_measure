@@ -28,6 +28,16 @@ strange to walk through a data area for several times, and the first time
 page faults can be amortized in later walk.
 
 \subsection{Experiments}
+Figure~\ref{x-x} shows the cost of using small and huge pages from 2MB memory
+occupation to 128MB. The stride we used to walk on the pages are from 4KB to
+2MB, with multiple iterations in each walk. In the figures, huge pages performs
+bad when iteration is small, and stride is relative large. With the iteration
+increases, its average performance is more improved.
+
+Random walking is more interesting. Small pages still perform better at the 
+beginning, but normalized difference is smaller. The result again illustrates
+the benefit of on demand allocation: sequential walking will force all pages
+being brought into the systems, and that would may not be a must.
 
 \subsection{Discussion}
 Huge pages can be useful. But strange enough, in Linux normal users can get

@@ -1,44 +1,47 @@
 \section{Shared Code Page}
 	\label{sec:sharedobj}
-Shared code pages is an important optimization to the virtual memory. Shared code
-usually appear as shared library or dynamic linking library in the system.
-With shared library, code size are largely reduced.  Moreover, the shared
-library is usually place independent and can be dynamically loaded by the
-applications.  This enables great flexibility in design. For instance,
-apache~\cite{apache} uses dynamic libraries to implement its modules, which can
-be loaded on demand and built separately. In this section I compare the typical
-applications' code size by linked them statically and dynamically. In addition,
-I will present a simple web testing on the apache server compiled statically
-and dynamically, to see if there is a performance difference.
+Shared code pages is an important optimization to the virtual memory. Previously
+I have shown the benefits from demand allocation as an optimization, now I will
+go on exploring the shared library, or shared object.  Shared code usually
+appear as shared library or dynamic linking library in the system.  With shared
+library, code size are largely reduced.  Moreover, the shared library is
+usually place independent and can be dynamically loaded by the applications.
+This enables great flexibility in design. For instance, apache~\cite{apache}
+uses dynamic libraries to implement its modules, which can be loaded on demand
+and built separately. In this section I compare the typical applications' code
+size by linked them statically and dynamically. Performance is nearly the 
+same for no matter static or dynamic linked program. I will discuss this in
+\ref{sec:conc}.
 
 \subsection{Methodology}
 It's quite straightforward to measure the code size. I compiled
 LLVM~\cite{llvm} and Apache~\cite{apache} to see the code size difference for
 shared library version and statically linked version.
 
-For web testing, I use the apachebench~\cite{apachebench} to fetch different
-size of static web pages, including synthetic pages and home pages of big
-sites. The MPM model I intentionally choose prefork model, since during
-forking, process's address space will be copied. The statically linked code,
-might have a little performance superior in external function call and
-variables access~\cite{linker}. But when fork executes frequently, the code
-size then destroy the tiny benefits.
+I also tried to use an apache server to exam the performance issue of dynamic
+linked library. But finally I gave up, it is because the \emph{fork} system
+call will make parent-children sharing the same code region, then the difference
+in code size will be small. So I didn't finish the experiment about this part.
 
 \subsection{Experiments}
-\subsubsection{Code Size}
-
-\subsubsection{Performance Difference in Real Webserver}
-
-
+ The code size from LLVM is shown in Table~\ref{table2}. Obviously the statically
+ linked programs are much larger in code size than the counterpart in
+ dynamically linked program. Increasing in code size is usually not acceptable to industrial use, so
+ dynamic library naturally comes to our sight.
 
 \subsection{Discussion}
 Originally I would like to compile firefox~\cite{firefox} to see the code size
 change. But after some attempts I found they do not support static linking in their
 build scripts so I moved to LLVM.
 
+Another fact is measuring performance difference between static programs and
+dynamic problems are quite difficult. The system call \emph{fork} provides a
+chance to share the read only code. Thus although programs are larger in size,
+it may not occupy rally that much memory. 
+
 Although shared objects are extensively used in current systems, it is not
 correct to say that static library is no longer required. Some problems 
 raised only in shared objects, like library dependency, and the binary 
 compatibility~\cite{dllhell}. Also, in scenario requires extreme good performance,
 like high performance scientific computing, static library would be their
-first choice.
+first choice. 

@@ -4,7 +4,7 @@ TLB is one greatest optimization that makes virtual memory to work fast.
 Without TLB, each memory reference will have to do more less than twice memory
 reference, for actual physical pages associated with, and for the real address
 CPU wants to visit. In this section, I try to measure the TLB size on my
-machine.
+machine. The result is not exactly what I expected, and I will try to explain that in the discussion section~\ref{subsec:tlb-discus}
 
 \subsection{Methodology}
 To measure the size of TLB, I choose to observe the timing difference on referencing
@@ -87,7 +87,7 @@ To automate the experiment, I also write code to measure cache size and
 associative sets. I reference the paper here~\cite{sigmetrics:cache}. To avoid
 the problem of physical not continuous, I resort to huge pages, and then things
 become a lot more easier, just capacity probe suffies to find out how many
-cache lines and how many associative sets are in each cache.
+cache lines and how many associative sets are in each cache. Due to the space limitation, I don't show the detail here. Further information should be found in~\cite{github}.
 
 \subsection{Experiment Results}
 %
@@ -98,10 +98,20 @@ cache lines and how many associative sets are in each cache.
 % 4. TLB way measuring
 %
 %
+Figure~\cite{fig:tlb-time} shows the timing result of TLB probing. The first
+part of the result looks quite reasonable, clear boundary and much stable
+than the second half after I have probed about 512 pages.
 
+To verify the case, I use \emph{perf} to collect the hardware data. The detail
+command and event will be disclosed in appendix~\ref{append:a}. It can also be
+found in~\ref{intel-dev3}.
+
+The collected result illustrates the behaviors: the thrashing of later curve
+is caused mainly by L2 cache miss. The reason is pages may be non-continuous in
+physical. I will discuss the in section~\ref{subsec:tlb-discus}.
 
 \subsection{Discussion}
-\label{subsec:tlb-discussion}
+\label{subsec:tlb-discus}
 The first time I used register-base-scale addressing to implement the walk
 kernel. However, this is not quite good choice. The reason is even CPU miss
 on a TLB visit, it can still issue following instructions because there are
@@ -112,15 +122,26 @@ The next method I tried is using linked list. In each cache line I encode the
 next address to visit and make it a linked list. In this way, the phase change
 become apparent when I increase the probing page count by factor 2. However, if
 I increase probing count 1 by 1, then the normalized time for one memory
-reference grows linearly before a big phase change. This does not quite make
-sense since their TLB hit and cache hit rate is nearly the same. I also checked
-branch prediction misses, instruction cache/TLB, and all looked normal.  The
-only abnormality is that there are many bubbles in pipeline. This is caused by
-linked list style visiting, where data dependencies are heavy for each memory
-instruction. Then I doubt it might be overhead of other instructions, but it is
-not the case since fixing total memory reference numbers still behave like
-this. In that case, the walk for smaller page number should have more
-iterations, leaving more intervals between the kernel loop of walk, thus should
-introduce more extra instructions. However, it goes in reverse direction. This
-is still not addressed yet and I am doing finer granularity performance
-analysis on that.
+reference exhibits the above behavior. The reason to blame for is the potential
+of non-continuous physical page. On my platform, there will be 512 cache sets
+on L2 cache, which means, if using 4KB page, 3 higher bit used to reference
+the cache sets will not be controllable by users. Operating system can even
+enforce the cache separation by not allocating physical pages with certain
+set index to users. The problem here is, although in theory we could probe
+more than $4096 (8-way 512 sets)$ pages before L2 cache misses, in practice
+only $512 (8-way and 6-bit sets)$ can be ensured to get visited without miss.
+
+An interesting observation is the chance for 8 pages having same high 3-bit
+index is rare. So we can adjust the walking algorithm, rather than fixing the
+stride and period of walking, we probe the good page sets, i.e. those uniformly
+distributed over the bits [15:12], this can be observed from timing result
+again. In such way, when we found enough pages, we can go on our walk by linking
+these pages together. I haven't got time to derive the actual expectation, but
+it should be much larger than the current turning point 512.
+
+In my experiments, I didn't measure the size of huge page TLB. One reason is it
+is developing toward unified TLB, which measuring the small page TLB is enough.
+On the other hand, the whole thing required to measure huge TLB would be similar
+as above process, and much easier since L2 cache sets will all be embodied inside
+the continuous huge pages.
+
