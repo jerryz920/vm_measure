@@ -1,0 +1,10 @@
+\section{Appendix A. Details}
+ \label{app a}
+
+\subsection{Hardware event collecting}
+Execute the command with root:\\
+\emph{perf stat -e r1008,dTLB -r 10 -c <cmd>} \\
+\emph{perf stat -e r01D1,r02D1,r04D1,r20D1 -r 10 -c <cmd>}\\
+The former measures the the L1 TLB miss (L2 TLB hit) and total TLB reference, and the later will measure the hit ratio of each level cache. The hit ratio is exclusive rather than inclusive, as we have shown in the experiment.
+
+
