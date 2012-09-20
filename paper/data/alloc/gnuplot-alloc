@@ -4,7 +4,7 @@ set boxwidth 0.75 absolute
 set style fill pattern 1.00 border -1
 set style data histogram
 set style histogram cluster gap 1
-set xtics 10 nomirror rotate by 45
+set xtics 10 nomirror rotate by -30
 set ytics 10 nomirror
 set mxtics 2
 set mytics 2
