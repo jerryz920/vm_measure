@@ -1,0 +1,14 @@
+\subsection{Platform Description}
+    \label{subsec:ec2}
+    Our tests use the new HPC-oriented Amazon EC2 Cluster Compute Instances
+    (CCIs) available since July 2010. Each CCI has 2 quad-core Intel Xeon
+    X5570 "Nehalem" processors, with 23GB of memory. Each instance is
+    allocated to users in a dedicated manner, unlike those in most other EC2
+    instance classes \cite{amazon:hpc}. The CCIs are interconnected with 10
+    Gigabit Ethernet. Due to the unstable availability of EBS storage that we
+    recently encountered, all our experiments in this section use the
+    ephemeral disks. 
+
+    Regarding software settings, we use the Cluster Instances Amazon Linux AMI
+    $2011.02.1$ associated with CCIs, the Intel compiler $11.1.072$ and Intel
+    MPI $4.0.1$. The default compiler optimization level is \emph{$-O3$}.

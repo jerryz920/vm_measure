@@ -1,0 +1,32 @@
+\begin{thebibliography}{1}
+
+\bibitem{apache}
+{Apache Web Server}.
+\newblock http://httpd.apache.org.
+
+\bibitem{c10k}
+{C10K problem}.
+\newblock http://www.kegel.com/c10k.html.
+
+\bibitem{dllhell}
+{Dll hell problem}.
+\newblock http://en.wikipedia.org/wiki/DLL\textunderscore Hell.
+
+\bibitem{firefox}
+{Firefox}.
+\newblock www.mozilla.org/en-US/firefox/.
+
+\bibitem{llvm}
+C.~Lattner and V.~Adve.
+\newblock Llvm: A compilation framework for lifelong program analysis \&
+  transformation.
+\newblock In {\em Code Generation and Optimization, 2004. CGO 2004.
+  International Symposium on}, pages 75--86. IEEE, 2004.
+
+\bibitem{sigmetrics:cache}
+K.~Yotov, K.~Pingali, and P.~Stodghill.
+\newblock Automatic measurement of memory hierarchy parameters.
+\newblock In {\em ACM SIGMETRICS Performance Evaluation Review}, volume~33,
+  pages 181--192. ACM, 2005.
+
+\end{thebibliography}
