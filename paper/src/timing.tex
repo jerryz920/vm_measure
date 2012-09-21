@@ -1,21 +1,23 @@
 \section{Experimental Environment}
 	\label{sec:timing}
 \subsection{Timer in Linux}
-To best measure the times in experiments, I still decide to use system call
-\emph{gettimeofday}. The major idea behind this is to enlarge the experiment
-scale, and ammortize the overhead. There are some high resolution things like
-\emph{Rdtsc} instruction on Intel's X86/64 platform. But it's hard to use, and
-its behavior varies on different platforms as I tested. Though
-\emph{gettimeofday} only supports measurement at ms level, we could see later,
-it is enough for our experiments.
+To best measure the times in experiments, I decide to use the system call
+\emph{gettimeofday}. The major idea behind this is that even if I have accurate
+enough timer, it's still easy to get disturbed by system noises. To avoid these
+noises, it's best to magnify the running scale, and also should run multiple
+times. In this way, \emph{gettimeofday} is already enough to measure the system
+behavior. There are some high resolution things like \emph{Rdtsc} instruction
+on Intel's X86/64 platform. But it's hard to use, and its behavior varies on
+different platforms as I tested. In my experiments, this interface works quite well.
 
 \subsection{Hardware and Software Environment}
-The machine I used for testing is a x86-64 machine. The processor is Sandy
-Bridge family, Intel-i5 2500K 3.3GHZ. This processor has two level private
+The machine I used for testing is a x86-64 machine. The processor is Intel-i5
+2500K 3.3GHZ, family of Sandy Bridge. This processor has two level private
 cache, and a last level shared cache. Both L1 data cache and instruction cache
 are 32KB in capacity, 8 way set associative, with 64 byte cache line. L2 cache
 is 256KB, also 8 way set associative. The last level cache is 6MB. Ram size is
 16GB. The operating system I chose Fedora 17, with the linux kernel version
 3.3.4. Compiler version is gcc-4.7.0. I also used a performance tool called
-\emph{perf}~\cite{perf}, which operates on hardware performance counter related interfaces.
+\emph{perf}~\cite{perf}, which operates on hardware performance counter related
+interfaces, to verify some of my result and conclusions.
 

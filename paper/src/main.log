@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  20 SEP 2012 18:54
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  20 SEP 2012 21:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -369,36 +369,63 @@ Package: booktabs 2005/04/14 v1.61803 publication quality tables
 \@lastruleclass=\count125
 \@thisrulewidth=\dimen141
 )
+(/usr/local/texlive/2012/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count126
+\lst@gtempboxa=\box30
+\lst@token=\toks32
+\lst@length=\count127
+\lst@currlwidth=\dimen142
+\lst@column=\count128
+\lst@pos=\count129
+\lst@lostspace=\dimen143
+\lst@width=\dimen144
+\lst@newlines=\count130
+\lst@lineno=\count131
+\abovecaptionskip=\skip51
+\belowcaptionskip=\skip52
+\lst@maxwidth=\dimen145
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+\c@lstnumber=\count132
+\lst@skipnumbers=\count133
+\lst@framebox=\box31
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/listings/listings.cfg
+File: listings.cfg 2007/02/22 1.4 listings configuration
+))
+Package: listings 2007/02/22 1.4 (Carsten Heinz)
+
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
  (/usr/local/texlive/2012/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count126
-\scratchdimen=\dimen142
-\scratchbox=\box30
-\nofMPsegments=\count127
-\nofMParguments=\count128
-\everyMPshowfont=\toks32
-\MPscratchCnt=\count129
-\MPscratchDim=\dimen143
-\MPnumerator=\count130
-\makeMPintoPDFobject=\count131
-\everyMPtoPDFconversion=\toks33
+\scratchcounter=\count134
+\scratchdimen=\dimen146
+\scratchbox=\box32
+\nofMPsegments=\count135
+\nofMParguments=\count136
+\everyMPshowfont=\toks33
+\MPscratchCnt=\count137
+\MPscratchDim=\dimen147
+\MPnumerator=\count138
+\makeMPintoPDFobject=\count139
+\everyMPtoPDFconversion=\toks34
 ) (/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
@@ -414,122 +441,121 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box31
+\AtBeginShipoutBox=\box33
 
 
 Package hyperref Warning: Height of page (\paperheight) is invalid (0.0pt),
 (hyperref)                using 11in.
 
-Package hyperref Info: Link coloring OFF on input line 18.
+Package hyperref Info: Link coloring OFF on input line 19.
 (/usr/local/texlive/2012/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
 
 (/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count132
+\c@section@level=\count140
 )
-LaTeX Info: Redefining \ref on input line 18.
-LaTeX Info: Redefining \pageref on input line 18.
-LaTeX Info: Redefining \nameref on input line 18.
+LaTeX Info: Redefining \ref on input line 19.
+LaTeX Info: Redefining \pageref on input line 19.
+LaTeX Info: Redefining \nameref on input line 19.
 
 (./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 38.
+\c@lstlisting=\count141
+LaTeX Font Info:    Try loading font information for U+msa on input line 39.
 
 (/usr/local/texlive/2012/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 38.
+LaTeX Font Info:    Try loading font information for U+msb on input line 39.
 
 (/usr/local/texlive/2012/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+lasy on input line 38.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 39.
 
 (/usr/local/texlive/2012/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-Overfull \hbox (10.79999pt too wide) in paragraph at lines 38--38
+Overfull \hbox (10.79999pt too wide) in paragraph at lines 39--39
  [][][] 
  []
 
-(./abstract.tex) (./intro.tex) (./timing.tex
-Overfull \hbox (1.98767pt too wide) in paragraph at lines 4--11
-\T1/aer/m/n/9 Though \T1/aer/m/it/9 get-time-of-day \T1/aer/m/n/9 only sup-port
-s mea-sure-ment at ms level,
- []
-
-) (./tlb.tex [1{/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdfte
-x.map}
+(./abstract.tex) (./intro.tex) (./timing.tex [1{/usr/local/texlive/2012/texmf-v
+ar/fonts/map/pdftex/updmap/pdftex.map}
 
 
-] <../figures/time.pdf, id=139, 361.35pt x 252.945pt>
+]) (./tlb.tex
+<../figures/time.pdf, id=135, 361.35pt x 252.945pt>
 File: ../figures/time.pdf Graphic file (type pdf)
+ <use ../figures/time.pdf>
+Package pdftex.def Info: ../figures/time.pdf used on input line 93.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
-<use ../figures/time.pdf>
-Package pdftex.def Info: ../figures/time.pdf used on input line 94.
-(pdftex.def)             Requested size: 192.00073pt x 134.39986pt.
- <../figures/tlb.pdf, id=141, 361.35pt x 252.945pt>
+<../figures/tlb.pdf, id=137, 361.35pt x 252.945pt>
 File: ../figures/tlb.pdf Graphic file (type pdf)
+ <use ../figures/tlb.pdf>
+Package pdftex.def Info: ../figures/tlb.pdf used on input line 114.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
-<use ../figures/tlb.pdf>
-Package pdftex.def Info: ../figures/tlb.pdf used on input line 115.
-(pdftex.def)             Requested size: 192.00073pt x 134.39986pt.
- <../figures/cache.pdf, id=142, 361.35pt x 252.945pt>
+<../figures/cache.pdf, id=138, 361.35pt x 252.945pt>
 File: ../figures/cache.pdf Graphic file (type pdf)
 
 <use ../figures/cache.pdf>
-Package pdftex.def Info: ../figures/cache.pdf used on input line 123.
-(pdftex.def)             Requested size: 192.00073pt x 134.39986pt.
-pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
-een already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.143 
-       [2]) (./alloc.texpdfTeX warning (ext4): destination with the same identi
-fier (name{page.}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.17 
-      [3 <../figures/time.pdf> <../figures/tlb.pdf> <../figures/cache.pdf>]
-<../figures/alloc.pdf, id=183, 361.35pt x 252.945pt>
-File: ../figures/alloc.pdf Graphic file (type pdf)
-
-<use ../figures/alloc.pdf>
-Package pdftex.def Info: ../figures/alloc.pdf used on input line 40.
-(pdftex.def)             Requested size: 192.00073pt x 134.39986pt.
-
-Overfull \hbox (2.66988pt too wide) in paragraph at lines 55--57
-[]\T1/aer/m/n/9 unmapping over-head, with/without re-set rou-tine. Mea-
- []
-
-<../figures/on_demand_4k.pdf, id=186, 361.35pt x 252.945pt>
-File: ../figures/on_demand_4k.pdf Graphic file (type pdf)
-
-<use ../figures/on_demand_4k.pdf>
-Package pdftex.def Info: ../figures/on_demand_4k.pdf used on input line 79.
+Package pdftex.def Info: ../figures/cache.pdf used on input line 122.
 (pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.97 
-      [4 <../figures/alloc.pdf> <../figures/on_demand_4k.pdf>]) (./hugepage.tex
+l.138 
+       [2]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 172.
+ (./tlb.c)pdfTeX warning (ext4): destination with the same identifier (name{pag
+e.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.179 
+       [3 <../figures/time.pdf> <../figures/tlb.pdf> <../figures/cache.pdf>])
+(./alloc.tex <../figures/alloc.pdf, id=191, 361.35pt x 252.945pt>
+File: ../figures/alloc.pdf Graphic file (type pdf)
+
+<use ../figures/alloc.pdf>
+Package pdftex.def Info: ../figures/alloc.pdf used on input line 39.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+
+Overfull \hbox (2.66988pt too wide) in paragraph at lines 54--56
+[]\T1/aer/m/n/9 unmapping over-head, with-/with-out re-set rou-tine. Mea-
+ []
+
+<../figures/on_demand_4k.pdf, id=196, 361.35pt x 252.945pt>
+File: ../figures/on_demand_4k.pdf Graphic file (type pdf)
+
+<use ../figures/on_demand_4k.pdf>
+Package pdftex.def Info: ../figures/on_demand_4k.pdf used on input line 84.
+(pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
+) (./hugepage.texpdfTeX warning (ext4): destination with the same identifier (n
+ame{page.}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1 \section
+            {Huge Pages} [4 <../figures/alloc.pdf>]
 <../figures/hugetlb_128m.pdf, id=208, 361.35pt x 252.945pt>
 File: ../figures/hugetlb_128m.pdf Graphic file (type pdf)
 
 <use ../figures/hugetlb_128m.pdf>
-Package pdftex.def Info: ../figures/hugetlb_128m.pdf used on input line 37.
+Package pdftex.def Info: ../figures/hugetlb_128m.pdf used on input line 26.
 (pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
 <../figures/hugetlb_rand_128m.pdf, id=209, 361.35pt x 252.945pt>
 File: ../figures/hugetlb_rand_128m.pdf Graphic file (type pdf)
 
 <use ../figures/hugetlb_rand_128m.pdf>
-Package pdftex.def Info: ../figures/hugetlb_rand_128m.pdf used on input line 46
+Package pdftex.def Info: ../figures/hugetlb_rand_128m.pdf used on input line 35
 .
 (pdftex.def)             Requested size: 215.99854pt x 151.2008pt.
 
@@ -541,31 +567,31 @@ name{page.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.14 \subsection{Methodology}
-                              [5 <../figures/hugetlb_128m.pdf>]) (./conc.tex)
-(./main.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 51.
+                              [5 <../figures/on_demand_4k.pdf> <../figures/huge
+tlb_128m.pdf>]) (./conc.tex) (./main.bbl)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 52.
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.51 \end{document}
+l.52 \end{document}
                     [6 <../figures/hugetlb_rand_128m.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 51.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 52.
  (./main.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 51.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 51.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 52.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 52.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 8972C4FDAF236B4D9977CF694AD42676;1701.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 51.
+(rerunfilecheck)             Checksum: 4FDA19FEFB23091133B8E024CBFEAA6A;1650.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 52.
  ) 
 Here is how much of TeX's memory you used:
- 6727 strings out of 493488
- 94888 string characters out of 3141326
- 197498 words of memory out of 3000000
- 9838 multiletter control sequences out of 15000+200000
+ 7917 strings out of 493488
+ 112486 string characters out of 3141326
+ 216853 words of memory out of 3000000
+ 11002 multiletter control sequences out of 15000+200000
  53871 words of font info for 75 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 41i,11n,29p,597b,321s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 41i,11n,32p,592b,839s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/local/texlive/2012/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/tex
 live/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/local/te
@@ -580,10 +606,10 @@ dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2012/texmf-dist/fo
 nts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/typ
 e1/urw/times/utmb8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/urw/tim
 es/utmri8a.pfb>
-Output written on main.pdf (6 pages, 275654 bytes).
+Output written on main.pdf (6 pages, 276356 bytes).
 PDF statistics:
- 299 PDF objects out of 1000 (max. 8388607)
- 261 compressed objects within 3 object streams
- 48 named destinations out of 1000 (max. 500000)
- 260 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 306 PDF objects out of 1000 (max. 8388607)
+ 268 compressed objects within 3 object streams
+ 59 named destinations out of 1000 (max. 500000)
+ 252 words of extra memory for PDF output out of 10000 (max. 10000000)
 

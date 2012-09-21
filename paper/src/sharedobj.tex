@@ -1,28 +1,28 @@
 \section{Shared Code Page}
 	\label{sec:sharedobj}
-Shared code pages is an important optimization to the virtual memory. Previously
-I have shown the benefits from demand allocation as an optimization, now I will
-go on exploring the shared library, or shared object.  Shared code usually
-appear as shared library or dynamic linking library in the system.  With shared
-library, code size are largely reduced.  Moreover, the shared library is
-usually place independent and can be dynamically loaded by the applications.
-This enables great flexibility in design. For instance, apache~\cite{apache}
-uses dynamic libraries to implement its modules, which can be loaded on demand
-and built separately. In this section I focus comparing the typical
-applications' code size by linked them statically and dynamically.
+Shared code pages is an important optimization to the virtual memory.
+Previously I have shown the benefits from demand allocation as an optimization,
+now I will go on exploring the code sharing. Shared code usually appears as a
+shared library or say dynamic linking library. With shared library, code size
+are largely reduced. Moreover, shared libraries are usually place independent
+and can be dynamically loaded by the applications. This enables great
+flexibility in design. For instance, apache~\cite{apache} uses dynamic
+libraries to implement its modules, which can be loaded on demand and built
+separately. In this section I will focus on comparing the typical applications'
+code size by linked them statically and dynamically.
 
 \subsection{Methodology}
 It's quite straightforward to measure the code size. I compiled
 LLVM~\cite{llvm} and Apache~\cite{apache} to see the code size difference for
 shared library version and statically linked version.
 
-I also tried to use an apache server using prefork mechanism to check the
-performance issues of shared library. But finally I gave up, it is because the
-\emph{fork} system call will make parent-children sharing the same code region,
-then the difference in code size will be small. It is possible to synthesis
-some benchmark, but even if that produces bad performance for shared library, it
-does not mean using shared library in real applications would yield bad
-performance. Due to these considerations, I didn't finish the experiments on this. 
+I also tried to use an apache server with prefork mechanism, to compare the
+performance of shared code and static code. But finally I gave up, it is
+because the \emph{fork} system call on Linux will make parent-children sharing
+the same code region, then the difference in code size will not be small. It is
+possible to synthesis some benchmark, but it is not quite persuading, since it 
+must reflect the pattern how real applications will use shared library Due to
+these considerations, I didn't finish the experiments on this. 
 
 \subsection{Experiments}
 
@@ -52,28 +52,29 @@ llvm-tblgen       &     22M & 22M   & macho-dump        &     188K & 2.2M   \\
 static libraries and shared libraries. The unit is byte.}
 \label{tab:codesize}
 \end{table}
-The code size from LLVM is shown in Table~\ref{tab:codesize}. Obviously the
-statically linked programs are much larger in code size than the counterpart
-in dynamically linked program. Increasing in code size is usually not
-acceptable to industrial use, making deployment more difficult. To reduce
-the code size and make it possible to share, shared library could serve
-well for this purpose.
+The code sizes of LLVM and Apache are shown in Table~\ref{tab:codesize}.
+Obviously the statically linked programs are much larger in code size than the
+corresponding dynamically linked program. Increasing in code size is usually
+not acceptable to industrial use, making deployment more difficult. When it
+comes to concern of code size, then shared library serves well for this
+purpose.
 
 \subsection{Discussion}
 Originally I tried to compile firefox~\cite{firefox} to see the code size
 change. But after some attempts I found they had abandoned support of static linking 
 long ago in their build scripts, so I moved to LLVM. The reason size is such huge
-is because it is a default debug building. However, even the optimized version
-still occupies 1GB on disk.
+is because the build is a default debug build with debug information. However,
+even the optimized version still occupies 1GB on disk.
 
 Another fact is measuring performance difference between static programs and
-dynamic problems are quite difficult. As mentioned before, the system call
-\emph{fork} provides a chance to share the read only code. Thus although
-programs are larger in size, it may not occupy rally that much memory. 
+dynamic problems are not easy. As mentioned before, the system call \emph{fork}
+provides a chance to share the read only code. Thus although programs are
+larger in size, it may not occupy too much memory for code regions. To compare
+the performance, a set of independent programs are needed.
 
-Although shared objects are extensively used in current systems, it is not
-correct to say that static library is no longer required. Some problems 
-raised only in shared objects, like library dependency, and the binary 
-compatibility~\cite{dllhell}. Also, in scenario requires extreme good performance,
-like high performance scientific computing, static library would be their
-first choice. 
+On the other hand, Although shared objects are extensively used in current
+systems, it is not correct to say that static library is no longer required.
+Some problems raise only in shared objects, like library dependency, and the
+binary compatibility~\cite{dllhell}. Also, in scenario requires extreme good
+performance, like high performance scientific computing, static library would
+be their first choice. 
