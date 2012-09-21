@@ -95,9 +95,11 @@ not bring in unnecessary pages saves time, while in the later one there
 are only a few pages to bring in, and poor locality slows it down.
 
 \subsection{Discussion}
-One thing hard to illustrate is whether operating system will 'smartly'
-allocate some pages for small requests. For example, when user requests for
-only 1 page, then allocate the page immediately to avoid a page fault can be
-somewhat a good choice. This period is too small to measure correctly just by
-using wall clock. However, if the operating system can provide a page fault
-counter for each process, then it is still possible to measure such behavior.
+I have almost confirmed the on-demand allocation and zeroing out for large
+chunk of requests in this chapter. But there is still one thing left: whether
+operating system will 'smartly' allocate some pages for small requests. For
+example, when user requests for only 1 page, then allocate the page immediately
+to avoid a page fault can be somewhat a good choice. This period is too small
+to measure correctly just by using wall clock. However, if the operating system
+can provide a page fault counter for each process, then it is still possible to
+measure such behavior.
